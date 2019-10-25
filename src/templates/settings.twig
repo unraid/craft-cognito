@@ -15,18 +15,42 @@
 
 {% import "_includes/forms" as forms %}
 
-{{ forms.autosuggestField({
-    label: 'Secret Key',
-    instructions: 'Enter your secret key for JWT token signing and verifying',
-    id: 'secretKey',
-    name: 'secretKey',
-    value: settings['secretKey'] is defined? settings['secretKey'] : ''})
-}}
-
 {{ forms.lightswitchField({
     label: 'Auto create user',
     instructions: 'If enabled, will automatically create a public user when provided with a verified JWT.',
     id: 'autoCreateUser',
     name: 'autoCreateUser',
     on: settings['autoCreateUser'] is defined? settings['autoCreateUser'] : false})
+}}
+
+{{ forms.autosuggestField({
+    label: 'AWS Cognito region',
+    instructions: 'Enter your AWS Cognito region',
+    id: 'region',
+    name: 'region',
+    value: settings['region'] is defined? settings['region'] : ''})
+}}
+
+{{ forms.autosuggestField({
+    label: 'AWS Cognito app client id',
+    instructions: 'Enter your AWS Cognito app client id (under App integration -> app client settings)',
+    id: 'clientId',
+    name: 'clientId',
+    value: settings['clientId'] is defined? settings['clientId'] : ''})
+}}
+
+{{ forms.autosuggestField({
+    label: 'AWS Cognito user pool id',
+    instructions: 'Enter your AWS Cognito user pool id (under General settings)',
+    id: 'userpoolId',
+    name: 'userpoolId',
+    value: settings['userpoolId'] is defined? settings['userpoolId'] : ''})
+}}
+
+{{ forms.autosuggestField({
+    label: 'JSON Web Key Set URL',
+    instructions: 'Enter your JSON Web Key Set URL for JWT token verifying',
+    id: 'secretKey',
+    name: 'secretKey',
+    value: settings['secretKey'] is defined? settings['secretKey'] : ''})
 }}

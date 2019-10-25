@@ -58,6 +58,12 @@ class CraftJwtAuth extends Plugin
         parent::init();
         self::$plugin = $this;
 
+        // Components
+        $this->setComponents([
+            'cognito' => services\AWSCognitoService::class,
+            'jwt' => services\JWT::class
+        ]);
+
         Craft::$app->on(Application::EVENT_INIT, function (Event $event) {
             $token = self::$plugin->jWT->parseAndVerifyJWT(self::$plugin->jWT->getJWTFromRequest());
 
@@ -72,7 +78,7 @@ class CraftJwtAuth extends Plugin
                 }
 
                 // Attempt to login as the user we have found or created
-                if ($user->id) {
+                if ($user && $user->id) {
                     Craft::$app->user->loginByUserId($user->id);
                 }
             }

@@ -27,7 +27,9 @@
   ],
   "require": {
     "craftcms/cms": "^3.3",
-    "lcobucci/jwt": "^3.3"
+    "lcobucci/jwt": "^3.3",
+    "aws/aws-sdk-php": "^3.112",
+    "codercat/jwk-to-pem": "^0.0.3"
   },
   "autoload": {
     "psr-4": {

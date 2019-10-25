@@ -18,8 +18,10 @@ use craft\helpers\StringHelper;
 use craft\helpers\ArrayHelper;
 use edenspiekermann\craftjwtauth\CraftJwtAuth;
 use Lcobucci\JWT\Parser;
-use Lcobucci\JWT\Signer\Hmac\Sha256;
+use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token;
+
+use CoderCat\JWKToPEM\JWKConverter;
 
 /**
  * @author    Mike Pierce
@@ -86,9 +88,20 @@ class JWT extends Component
     public function verifyJWT(Token $token)
     {
         $secretKey = CraftJwtAuth::getInstance()->getSettings()->secretKey;
+        $jwks = json_decode(file_get_contents($secretKey), true);
+        $jwk = null;
+        foreach($jwks['keys'] as $struct) {
+            if ($token->getHeader('kid') === $struct['kid']) {
+                $jwk = $struct;
+                break;
+            }
+        }
+
+        $jwkConverter = new JWKConverter();
+        $convertedJwk = $jwkConverter->toPEM($jwk);
 
         // Attempt to verify the token
-        $verify = $token->verify((new Sha256()), $secretKey);
+        $verify = $token->verify((new Sha256()), $convertedJwk);
 
         return $verify;
     }
@@ -133,7 +146,7 @@ class JWT extends Component
 
                     // Set username and email
                     $user->email = $email;
-                    $user->username = $email;
+                    $user->username = $token->getClaim('cognito:username', $email);
 
                     // These are optional, so pass empty string as the default
                     $user->firstName = $token->getClaim('given_name', '');
@@ -146,29 +159,6 @@ class JWT extends Component
                     if ($success) {
                         // Assign the user to the default public group
                         Craft::$app->users->assignUserToDefaultGroup($user);
-
-                        // Look for a picture in the claim
-                        $picture = $token->getClaim('picture', '');
-                        if ($picture) {
-                            // Create a guzzel client
-                            $guzzle = Craft::createGuzzleClient();
-
-                            // Attempt to fetch the image
-                            $imageUpload = $guzzle->get($picture);
-
-                            // Derive the file extension from the content type
-                            $ext = self::$plugin->jWT->mime2ext($imageUpload->getHeader('Content-Type'));
-
-                            // Make a filename from the username, and add some randomness
-                            $fileName = $user->username . StringHelper::randomString() . '.' . $ext;
-                            $tempFile = Craft::$app->path->getTempAssetUploadsPath() . '/' . $fileName;
-
-                            // Fetch it again, this time saving it to a temp file
-                            $imageUpload = $guzzle->get($picture, ['save_to' => $tempFile]);
-
-                            // Save the tempfile to the user’s account as profile image
-                            Craft::$app->getUsers()->saveUserPhoto($tempFile, $user, $fileName);
-                        }
 
                         return $user;
                     }

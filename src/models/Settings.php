@@ -28,6 +28,9 @@ class Settings extends Model
      */
     public $secretKey = '';
     public $autoCreateUser = '';
+    public $region = '';
+    public $clientId = '';
+    public $userpoolId = '';
 
     // Public Methods
     // =========================================================================
@@ -40,6 +43,9 @@ class Settings extends Model
         return [
             ['secretKey', 'string'],
             ['autoCreateUser', 'boolean'],
+            ['region', 'string'],
+            ['clientId', 'string'],
+            ['userpoolId', 'string'],
         ];
     }
 }

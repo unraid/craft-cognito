@@ -31,4 +31,13 @@ return [
 
     // Whether to automatically create a user for verified JWTs that don't match an account
     "autoCreateUser" => true,
+
+    // Cognito region
+    "region" => 'us-east-1',
+
+    // Cognito client id
+    "clientId" => '5v2eh83n5olecdumomvrjlapmt',
+
+    // Cognito user pool id
+    'userpoolId' => 'us-east-1_S6QiPjbAW'
 ];
