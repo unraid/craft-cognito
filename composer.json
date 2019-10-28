@@ -1,28 +1,28 @@
 {
-  "name": "edenspiekermann/craft-jwt-auth",
-  "description": "Enable authentication to Craft through the use of JSON Web Tokens (JWT)",
+  "name": "levinriegner/craft-cognito-auth",
+  "description": "Enable authentication to Craft through the use of AWS Cognito",
   "type": "craft-plugin",
-  "version": "0.2.0",
+  "version": "0.1.0",
   "keywords": [
     "craft",
     "cms",
     "craftcms",
     "craft-plugin",
-    "craft jwt"
+    "craft cognito"
   ],
   "support": {
-    "docs": "https://github.com/edenspiekermann/craft-jwt-auth",
-    "issues": "https://github.com/edenspiekermann/craft-jwt-auth/issues"
+    "docs": "https://github.com/levin-riegner/craft-cognito",
+    "issues": "https://github.com/levin-riegner/craft-cognito/issues"
   },
   "license": "MIT",
   "authors": [
     {
-      "name": "Mike Pierce",
-      "homepage": "https://michaelpierce.trade"
+      "name": "Levinriegner",
+      "homepage": "https://levinriegner.com"
     },
     {
-      "name": "Edenspiekermann",
-      "homepage": "https://edenspiekermann.com"
+      "name": "Ohmycode",
+      "homepage": "https://www.ohmycode.cat"
     }
   ],
   "require": {
@@ -33,18 +33,19 @@
   },
   "autoload": {
     "psr-4": {
-      "edenspiekermann\\craftjwtauth\\": "src/"
+      "levinriegner\\craftcognitoauth\\": "src/"
     }
   },
   "extra": {
-    "name": "Craft JWT Auth",
-    "handle": "craft-jwt-auth",
+    "name": "Craft Cognito Auth",
+    "handle": "craft-cognito-auth",
     "hasCpSettings": true,
     "hasCpSection": false,
-    "changelogUrl": "https://raw.githubusercontent.com/edenspiekermann/craft-jwt-auth/master/CHANGELOG.md",
+    "changelogUrl": "https://raw.githubusercontent.com/levin-riegner/craft-cognito/master/CHANGELOG.md",
     "components": {
-      "jWT": "edenspiekermann\\craftjwtauth\\services\\JWT"
+      "jwt": "levinriegner\\craftcognitoauth\\services\\JWT",
+      "cognito": "levinriegner\\craftcognitoauth\\services\\AWSCognitoService"
     },
-    "class": "edenspiekermann\\craftjwtauth\\CraftJwtAuth"
+    "class": "levinriegner\\craftcognitoauth\\CraftJwtAuth"
   }
 }

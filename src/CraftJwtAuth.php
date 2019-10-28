@@ -9,10 +9,10 @@
  * @copyright Copyright (c) 2019 Mike Pierce
  */
 
-namespace edenspiekermann\craftjwtauth;
+namespace levinriegner\craftcognitoauth;
 
-use edenspiekermann\craftjwtauth\services\JWT as JWTService;
-use edenspiekermann\craftjwtauth\models\Settings;
+use levinriegner\craftcognitoauth\services\JWT as JWTService;
+use levinriegner\craftcognitoauth\models\Settings;
 
 use Craft;
 use craft\base\Plugin;
@@ -27,7 +27,7 @@ use yii\base\Event;
  * @package   CraftJwtAuth
  * @since     0.1.0
  *
- * @property  JWTService $jWT
+ * @property  JWTService $jwt
  */
 class CraftJwtAuth extends Plugin
 {
@@ -58,19 +58,13 @@ class CraftJwtAuth extends Plugin
         parent::init();
         self::$plugin = $this;
 
-        // Components
-        $this->setComponents([
-            'cognito' => services\AWSCognitoService::class,
-            'jwt' => services\JWT::class
-        ]);
-
         Craft::$app->on(Application::EVENT_INIT, function (Event $event) {
-            self::$plugin->jWT->parseJWTAndCreateUser(self::$plugin->jWT->getJWTFromRequest());
+            self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
         });
 
         Craft::info(
             Craft::t(
-                'craft-jwt-auth',
+                'craft-cognito-auth',
                 '{name} plugin loaded',
                 ['name' => $this->name]
             ),
@@ -95,7 +89,7 @@ class CraftJwtAuth extends Plugin
     protected function settingsHtml(): string
     {
         return Craft::$app->view->renderTemplate(
-            'craft-jwt-auth/settings',
+            'craft-cognito-auth/settings',
             [
                 'settings' => $this->getSettings()
             ]

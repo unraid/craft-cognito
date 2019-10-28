@@ -9,11 +9,11 @@
  * @copyright Copyright (c) 2019 Mike Pierce
  */
 
-namespace edenspiekermann\craftjwtauth\controllers;
+namespace levinriegner\craftcognitoauth\controllers;
 
 use Craft;
 use craft\web\Controller;
-use edenspiekermann\craftjwtauth\CraftJwtAuth;
+use levinriegner\craftcognitoauth\CraftJwtAuth;
 
 /**
  * @author    Mike Pierce

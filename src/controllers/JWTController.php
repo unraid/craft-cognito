@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2019 Mike Pierce
  */
 
-namespace edenspiekermann\craftjwtauth\controllers;
+namespace levinriegner\craftcognitoauth\controllers;
 
 use craft\web\Controller;
 

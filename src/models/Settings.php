@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2019 Mike Pierce
  */
 
-namespace edenspiekermann\craftjwtauth\models;
+namespace levinriegner\craftcognitoauth\models;
 
 use craft\base\Model;
 
@@ -26,12 +26,12 @@ class Settings extends Model
     /**
      * @var string
      */
-    public $secretKey = '';
     public $autoCreateUser = '';
     public $region = '';
     public $clientId = '';
     public $userpoolId = '';
-
+    public $jwks = '';
+    
     // Public Methods
     // =========================================================================
 
@@ -41,11 +41,11 @@ class Settings extends Model
     public function rules()
     {
         return [
-            ['secretKey', 'string'],
             ['autoCreateUser', 'boolean'],
             ['region', 'string'],
             ['clientId', 'string'],
             ['userpoolId', 'string'],
+            ['jwks', 'string'],
         ];
     }
 }

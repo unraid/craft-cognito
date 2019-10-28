@@ -1,11 +1,11 @@
 <?php
 
-namespace edenspiekermann\craftjwtauth\services;
+namespace levinriegner\craftcognitoauth\services;
 
 use Craft;
 use craft\base\Component;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
-use edenspiekermann\craftjwtauth\CraftJwtAuth;
+use levinriegner\craftcognitoauth\CraftJwtAuth;
 
 class AWSCognitoService extends Component
 {
