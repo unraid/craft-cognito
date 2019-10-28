@@ -1,6 +1,6 @@
-# Craft JWT Auth plugin
+# Craft Cognito Auth plugin
 
-Enable authentication to Craft through the use of [JSON Web Tokens](https://jwt.io/) (JWT).
+Enable authentication to Craft through the use of [AWS Cognito](https://aws.amazon.com/cognito/).
 
 ![Screenshot](resources/img/plugin-logo.png)
 
@@ -18,28 +18,35 @@ To install the plugin, follow these instructions.
 
 2.  Then tell Composer to load the plugin:
 
-    composer require edenspiekermann/craft-jwt-auth
+    composer require levinriegner/craft-cognito-auth
 
-3.  In the Control Panel, go to Settings → Plugins and click the “Install” button for Craft JWT Auth.
+3.  In the Control Panel, go to Settings → Plugins and click the “Install” button for Craft Cognito Auth.
 
-## Craft JWT Auth Overview
+## Craft Cognito Auth Overview
 
 From the [official website](https://jwt.io/):
 
     JSON Web Tokens are an open, industry standard RFC 7519 method for representing claims securely between two parties.
 
-This plugin enables requests to Craft to be securely authenticated in the presence of a JWT that can be successfully verified as matching a secret key generated signature.
+This plugin enables requests to Craft to be securely authenticated in the presence of a Cognito JWT that can be successfully verified as matching a JWKS signature.
 
-## Configuring Craft JWT Auth
+## Configuring Craft Cognito Auth
 
 Once installed, naviate to the settings page of the plugin and enter required settings to activate the plugin:
 
-| Setting            | Description                                                                                 |
-| ------------------ | ------------------------------------------------------------------------------------------- |
-| `Secret key`       | Mandatory. Secret key used to sign outgoing and verify incoming JWTs.                       |
-| `Auto create user` | Optional. Activate to enable auto-creation of a public user when provided a verifiable JWT. |
+| Setting                    | Description                                                                                 |
+| -------------------------- | ------------------------------------------------------------------------------------------- |
+| `Auto create user`         | Optional. Activate to enable auto-creation of a public user when provided a verifiable JWT. |
+| `AWS Cognito region`       | Mandatory. AWS cognito region.                                                              |
+| `AWS Cognito app client id`| Mandatory. AWS Cognito app client id (under App integration -> app client settings).        |
+| `AWS Cognito user pool id` | Mandatory. AWS Cognito user pool id (under General settings).                               |
+| `JSON Web Key Set URL`     | Mandatory. JSON Web Key Set URL (JWKS), used for verifying incoming Cognito JWTs.           |
 
-## Using Craft JWT Auth
+## Configuring AWS Cognito
+
+This plugin asumes AWS Cognito is configured so that [users sign up / sign in with email instead of username](https://docs.aws.amazon.com/cognito/latest/developerguide/user-pool-settings-attributes.html#user-pool-settings-aliases-settings-option-2) and that the App client being used has the sign-in API for server-based authentication (ADMIN_NO_SRP_AUTH) enabled as stated in the [AWS docs](https://docs.aws.amazon.com/cognito/latest/developerguide/amazon-cognito-user-pools-authentication-flow.html?icmpid=docs_cognito_console#amazon-cognito-user-pools-server-side-authentication-flow)
+
+## Using Craft Cognito Auth
 
 The plugin will attempt to verify any incoming requests with a JWT present in the `Authentication` header with a `Bearer` prefix, or with the simpler `X-Access-Token` header value. An example:
 
@@ -57,28 +64,4 @@ If a provided token can be verified AND can be match to a user account with a us
 
 If the token is verifiable but a matching user account does NOT exist, but the `Auto create user` setting is enabled AND public registration is enabled in the Craft settings, a new user account will be created on-the-fly and the new user then logged in.
 
-## Craft JWT Auth Roadmap
-
-### Features
-
-The plugin does or will offer the following features:
-
-- [x] Validate incoming requests with a JWT present in the Authentication headers.
-- [x] Match a validated JWT to a user account in Craft CMS and login as that user.
-- [x] Optionally create a new account if no existing account can be found.
-- [ ] Generate a JWT from a user’s account data to enable sharing with other services that implement the same secret key.
-
-### Milestones
-
-While the plugin is already useable, it is by no means finished. Use at your own risk. Some things to do before I'm comfortable taking it to version 1.0.0:
-
-- [ ] `0.2.0` Refactor into more logical set of services and classes.
-- [ ] `0.3.0` Better testing for the presence of an actual JWT, rather than some other type of token.
-- [ ] `0.3.1` Checking for the presence of valid claims and handling if they aren't there.
-- [ ] `0.3.2` Handle edge case of successful user creation but failed image creation.
-- [ ] `0.3.3` Better exception handling in general.
-- [ ] `0.4.0` Add test cases for all of that.
-- [ ] Have really smart people review the code for vulnerabilities.
-- [ ] Other stuff I haven't though of because I haven't done 👆 yet.
-
-Written and maintained by [Mike Pierce](https://michaelpierce.trade). Made possible by [Edenspiekermann](https://edenspiekermann.com).
+This plugin provides example templates for you to use as a reference when building out your authentication solution. The example templates can by found in the vendor/levinriegner/craft-cognito-auth/templates/ folder, and can be copied to your projects top level templates/ folder.
