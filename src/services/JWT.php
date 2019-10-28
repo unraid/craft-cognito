@@ -169,6 +169,27 @@ class JWT extends Component
         return null;
     }
 
+    public function parseJWTAndCreateUser($accesToken)
+    {
+        $token = $this->parseAndVerifyJWT($accesToken);
+        
+        // If the token passes verification...
+        if ($token) {
+            // Look for the user
+            $user = $this->getUserByJWT($token);
+
+            // If we don't have a user, but we're allowed to create one...
+            if (!$user) {
+                $user = $this->createUserByJWT($token);
+            }
+
+            // Attempt to login as the user we have found or created
+            if ($user && $user->id) {
+                Craft::$app->user->loginByUserId($user->id);
+            }
+        }
+    }
+
     /*
      * @return mixed
      */

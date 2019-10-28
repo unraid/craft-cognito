@@ -52,17 +52,21 @@ class AWSCognitoService extends Component
         return ["token" => $result->get('AuthenticationResult')['IdToken']];
     }
 
-    public function signup(string $username, string $email, string $password) : string
+    public function signup(string $email, string $password, string $firstname, string $lastname) : string
     {
         try {
             $result = $this->client->signUp([
                 'ClientId' => $this->client_id,
-                'Username' => $username,
+                'Username' => $email,
                 'Password' => $password,
                 'UserAttributes' => [
                     [
-                        'Name' => 'name',
-                        'Value' => $username
+                        'Name' => 'given_name',
+                        'Value' => $firstname
+                    ],
+                    [
+                        'Name' => 'family_name',
+                        'Value' => $lastname
                     ],
                     [
                         'Name' => 'email',
@@ -77,12 +81,12 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function confirmSignup(string $username, string $code) : string
+    public function confirmSignup(string $email, string $code) : string
     {
         try {
             $result = $this->client->confirmSignUp([
                 'ClientId' => $this->client_id,
-                'Username' => $username,
+                'Username' => $email,
                 'ConfirmationCode' => $code,
             ]);
         } catch (\Exception $e) {
@@ -92,12 +96,12 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function sendPasswordResetMail(string $username) : string
+    public function sendPasswordResetMail(string $email) : string
     {
         try {
             $this->client->forgotPassword([
                 'ClientId' => $this->client_id,
-                'Username' => $username
+                'Username' => $email
             ]);
         } catch (Exception $e) {
             return $e->getMessage();
@@ -106,14 +110,14 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function resetPassword(string $code, string $password, string $username) : string
+    public function resetPassword(string $code, string $password, string $email) : string
     {
         try {
             $this->client->confirmForgotPassword([
                 'ClientId' => $this->client_id,
                 'ConfirmationCode' => $code,
                 'Password' => $password,
-                'Username' => $username
+                'Username' => $email
             ]);
         } catch (Exception $e) {
             return $e->getMessage();

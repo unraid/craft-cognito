@@ -65,23 +65,7 @@ class CraftJwtAuth extends Plugin
         ]);
 
         Craft::$app->on(Application::EVENT_INIT, function (Event $event) {
-            $token = self::$plugin->jWT->parseAndVerifyJWT(self::$plugin->jWT->getJWTFromRequest());
-
-            // If the token passes verification...
-            if ($token) {
-                // Look for the user
-                $user = self::$plugin->jWT->getUserByJWT($token);
-
-                // If we don't have a user, but we're allowed to create one...
-                if (!$user) {
-                    $user = self::$plugin->jWT->createUserByJWT($token);
-                }
-
-                // Attempt to login as the user we have found or created
-                if ($user && $user->id) {
-                    Craft::$app->user->loginByUserId($user->id);
-                }
-            }
+            self::$plugin->jWT->parseJWTAndCreateUser(self::$plugin->jWT->getJWTFromRequest());
         });
 
         Craft::info(
