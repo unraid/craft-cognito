@@ -9,10 +9,10 @@
  * @copyright Copyright (c) 2019 Mike Pierce
  */
 
-namespace edenspiekermann\craftjwtauth;
+namespace levinriegner\craftcognitoauth;
 
-use edenspiekermann\craftjwtauth\services\JWT as JWTService;
-use edenspiekermann\craftjwtauth\models\Settings;
+use levinriegner\craftcognitoauth\services\JWT as JWTService;
+use levinriegner\craftcognitoauth\models\Settings;
 
 use Craft;
 use craft\base\Plugin;
@@ -27,7 +27,7 @@ use yii\base\Event;
  * @package   CraftJwtAuth
  * @since     0.1.0
  *
- * @property  JWTService $jWT
+ * @property  JWTService $jwt
  */
 class CraftJwtAuth extends Plugin
 {
@@ -59,28 +59,12 @@ class CraftJwtAuth extends Plugin
         self::$plugin = $this;
 
         Craft::$app->on(Application::EVENT_INIT, function (Event $event) {
-            $token = self::$plugin->jWT->parseAndVerifyJWT(self::$plugin->jWT->getJWTFromRequest());
-
-            // If the token passes verification...
-            if ($token) {
-                // Look for the user
-                $user = self::$plugin->jWT->getUserByJWT($token);
-
-                // If we don't have a user, but we're allowed to create one...
-                if (!$user) {
-                    $user = self::$plugin->jWT->createUserByJWT($token);
-                }
-
-                // Attempt to login as the user we have found or created
-                if ($user->id) {
-                    Craft::$app->user->loginByUserId($user->id);
-                }
-            }
+            self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
         });
 
         Craft::info(
             Craft::t(
-                'craft-jwt-auth',
+                'craft-cognito-auth',
                 '{name} plugin loaded',
                 ['name' => $this->name]
             ),
@@ -105,7 +89,7 @@ class CraftJwtAuth extends Plugin
     protected function settingsHtml(): string
     {
         return Craft::$app->view->renderTemplate(
-            'craft-jwt-auth/settings',
+            'craft-cognito-auth/settings',
             [
                 'settings' => $this->getSettings()
             ]

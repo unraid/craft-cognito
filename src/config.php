@@ -24,11 +24,18 @@
  */
 
 return [
-    // TODO: Make these actually do something...
-
-    // Your secrete ket used for signing generated and verifying incoming JWTs
-    "secretKey" => '',
-
     // Whether to automatically create a user for verified JWTs that don't match an account
     "autoCreateUser" => true,
+
+    // Cognito region
+    "region" => 'us-east-1',
+
+    // Cognito client id
+    "clientId" => '5v2eh83n5olecdumomvrjlapmt',
+
+    // Cognito user pool id
+    'userpoolId' => 'us-east-1_S6QiPjbAW',
+
+    // Cognito JSON Web Key Set URL (JWKS) used for verifying incoming Cognito JWTs
+    "jwks" => '',
 ];

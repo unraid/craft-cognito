@@ -1,0 +1,24 @@
+<form method="post" accept-charset="UTF-8">
+    {{ csrfInput() }}
+    {{ actionInput('craft-cognito-auth/auth/register') }}
+    {{ redirectInput('') }}
+
+    <h3><label for="email">Email</label></h3>
+    <input id="email" type="text" name="email">
+
+    <h3><label for="password">Password</label></h3>
+    <input id="password" type="password" name="password">
+
+    <h3><label for="email">First name</label></h3>
+    <input id="firstname" type="text" name="firstname">
+
+    <h3><label for="email">Last name</label></h3>
+    <input id="lastname" type="text" name="lastname">
+
+    <input type="submit" value="Register">
+
+    {% if errorMessage is defined %}
+        <p>{{ errorMessage }}</p>
+    {% endif %}
+
+</form>

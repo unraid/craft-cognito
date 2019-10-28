@@ -1,0 +1,18 @@
+<form method="post" accept-charset="UTF-8">
+    {{ csrfInput() }}
+    {{ actionInput('craft-cognito-auth/auth/login') }}
+
+    <h3><label for="loginName">Email</label></h3>
+    <input id="loginName" type="text" name="email">
+
+    <h3><label for="password">Password</label></h3>
+    <input id="password" type="password" name="password">
+
+    <input type="submit" value="Login">
+
+    {% if errorMessage is defined %}
+        <p>{{ errorMessage }}</p>
+    {% endif %}
+</form>
+
+<p><a href="{{ url('forgotpassword') }}">Forget your password?</a></p>
