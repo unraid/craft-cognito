@@ -17,7 +17,7 @@ use levinriegner\craftcognitoauth\models\Settings;
 use Craft;
 use craft\base\Plugin;
 use craft\web\Application;
-
+use craft\web\twig\variables\CraftVariable;
 use yii\base\Event;
 
 /**
@@ -57,11 +57,8 @@ class CraftJwtAuth extends Plugin
     {
         parent::init();
         self::$plugin = $this;
-
-        Craft::$app->on(Application::EVENT_INIT, function (Event $event) {
-            self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
-        });
-
+        self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
+       
         Craft::info(
             Craft::t(
                 'craft-cognito-auth',
