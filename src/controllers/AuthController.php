@@ -83,7 +83,7 @@ class AuthController extends Controller
         if(strlen($cognitoError) == 0){
             return $this->_handleResponse(null, 200);
         }else{
-            return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse], 500);
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
         }
     }
 
@@ -97,7 +97,7 @@ class AuthController extends Controller
         if(strlen($cognitoError) == 0){
             return $this->_handleResponse(null, 200);
         }else{
-            return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse], 500);
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
         }
     }
 

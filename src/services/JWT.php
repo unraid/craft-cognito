@@ -188,5 +188,5 @@ class JWT extends Component
                 Craft::$app->user->loginByUserId($user->id);
             }
         }
-    } 
+    }
 }
