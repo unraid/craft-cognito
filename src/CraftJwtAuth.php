@@ -57,8 +57,10 @@ class CraftJwtAuth extends Plugin
     {
         parent::init();
         self::$plugin = $this;
-        self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
-       
+        if(Craft::$app instanceof craft\web\Application){
+            self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
+        }
+
         Craft::info(
             Craft::t(
                 'craft-cognito-auth',
