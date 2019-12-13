@@ -49,7 +49,11 @@ class AWSCognitoService extends Component
             return ["error" => $e->getMessage()];
         }
 
-        return ["token" => $result->get('AuthenticationResult')['IdToken']];
+        return [
+            "token" => $result->get('AuthenticationResult')['IdToken'],
+            "accessToken" => $result->get('AuthenticationResult')['AccessToken'],
+            "refreshToken" => $result->get('AuthenticationResult')['RefreshToken']
+        ];
     }
 
     public function signup(string $email, string $password, string $firstname, string $lastname) : string
@@ -103,7 +107,7 @@ class AWSCognitoService extends Component
                 'ClientId' => $this->client_id,
                 'Username' => $email
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
 
@@ -119,7 +123,7 @@ class AWSCognitoService extends Component
                 'Password' => $password,
                 'Username' => $email
             ]);
-        } catch (Exception $e) {
+        } catch (\Exception $e) {
             return $e->getMessage();
         }
 

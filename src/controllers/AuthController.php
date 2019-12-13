@@ -69,7 +69,11 @@ class AuthController extends Controller
 
         $cognitoResponse = CraftJwtAuth::getInstance()->cognito->authenticate($email, $password);
         if(array_key_exists('token', $cognitoResponse)){
-            return $this->_handleResponse(['status' => 0, 'token' => $cognitoResponse['token']], 200, true);
+            return $this->_handleResponse(['status' => 0, 
+                    'token' => $cognitoResponse['token'],
+                    'accessToken' => $cognitoResponse['accessToken'],
+                    'refreshToken' => $cognitoResponse['refreshToken']
+                ], 200, true);
         }else{
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse['error']], 500);
         }
