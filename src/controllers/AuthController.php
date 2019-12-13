@@ -72,7 +72,8 @@ class AuthController extends Controller
             return $this->_handleResponse(['status' => 0, 
                     'token' => $cognitoResponse['token'],
                     'accessToken' => $cognitoResponse['accessToken'],
-                    'refreshToken' => $cognitoResponse['refreshToken']
+                    'refreshToken' => $cognitoResponse['refreshToken'],
+                    'expiresIn' => $cognitoResponse['expiresIn']
                 ], 200, true);
         }else{
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse['error']], 500);
@@ -102,6 +103,23 @@ class AuthController extends Controller
             return $this->_handleResponse(null, 200);
         }else{
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
+        }
+    }
+
+    public function actionRefresh()
+    {
+        $username = Craft::$app->getRequest()->getRequiredBodyParam('username');
+        $token = Craft::$app->getRequest()->getRequiredBodyParam('token');
+
+        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->refreshAuthentication($username, $token);
+        if(array_key_exists('token', $cognitoResponse)){
+            return $this->_handleResponse(['status' => 0, 
+                    'token' => $cognitoResponse['token'],
+                    'accessToken' => $cognitoResponse['accessToken'],
+                    'expiresIn' => $cognitoResponse['expiresIn']
+                ], 200);
+        }else{
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse['error']], 500);
         }
     }
 

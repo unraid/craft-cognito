@@ -5,6 +5,7 @@ namespace levinriegner\craftcognitoauth\services;
 use Craft;
 use craft\base\Component;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
+use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
 use levinriegner\craftcognitoauth\CraftJwtAuth;
 
 class AWSCognitoService extends Component
@@ -33,6 +34,29 @@ class AWSCognitoService extends Component
         
     }
 
+    public function refreshAuthentication($username, $refreshToken)
+    {
+        try {
+            $result = $this->client->adminInitiateAuth([
+                'AuthFlow' => 'REFRESH_TOKEN_AUTH',
+                'AuthParameters' => [
+                    'USERNAME' => $username,
+                    'REFRESH_TOKEN' => $refreshToken
+                ],
+                'ClientId' => $this->client_id,
+                'UserPoolId' => $this->userpool_id,
+            ]);
+
+            return [
+                "token" => $result->get('AuthenticationResult')['IdToken'],
+                "accessToken" => $result->get('AuthenticationResult')['AccessToken'],
+                "expiresIn" => $result->get('AuthenticationResult')['ExpiresIn']
+            ];
+        } catch (\Exception $e) {
+            return ["error" => $e->getMessage()];
+        }
+    }
+
     public function authenticate(string $username, string $password) : array
     {
         try {
@@ -52,7 +76,8 @@ class AWSCognitoService extends Component
         return [
             "token" => $result->get('AuthenticationResult')['IdToken'],
             "accessToken" => $result->get('AuthenticationResult')['AccessToken'],
-            "refreshToken" => $result->get('AuthenticationResult')['RefreshToken']
+            "refreshToken" => $result->get('AuthenticationResult')['RefreshToken'],
+            "expiresIn" => $result->get('AuthenticationResult')['ExpiresIn']
         ];
     }
 
