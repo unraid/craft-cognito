@@ -22,7 +22,8 @@ use levinriegner\craftcognitoauth\CraftJwtAuth;
  */
 class AuthController extends Controller
 {
-    protected $allowAnonymous = true;
+    protected $allowAnonymous = ['register','confirm','login',
+            'forgotpasswordrequest','forgotpassword','refresh'];
 
     public function beforeAction($action)
 	{
@@ -120,6 +121,78 @@ class AuthController extends Controller
                 ], 200);
         }else{
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse['error']], 500);
+        }
+    }
+
+    public function actionUpdate()
+    {
+        $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
+        $firstname = Craft::$app->getRequest()->getBodyParam('firstname');
+        $lastname = Craft::$app->getRequest()->getBodyParam('lastname');
+
+        $token = CraftJwtAuth::getInstance()->jwt->parseJWT(CraftJwtAuth::getInstance()->jwt->getJWTFromRequest());
+        $cognitoEmail = CraftJwtAuth::getInstance()->cognito->getEmail($token);
+        $isAdmin = CraftJwtAuth::getInstance()->cognito->isAdmin($token);
+        if(!$isAdmin && $cognitoEmail != $email){
+            return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
+        }
+
+        $cognitoError = CraftJwtAuth::getInstance()->cognito->updateUserAttributes($email, $firstname, $lastname);
+        if(strlen($cognitoError) == 0){
+            $existingUser = Craft::$app->users->getUserByUsernameOrEmail($email);
+            if($existingUser){
+                if($firstname)
+                    $existingUser->firstName = $firstname;
+                if($lastname)
+                    $existingUser->lastName = $lastname;
+
+                Craft::$app->getElements()->saveElement($existingUser);
+            }
+            return $this->_handleResponse(['status' => 0], 200);
+        }else{
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
+        }
+    }
+
+    public function actionDelete()
+    {
+        $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
+
+        $token = CraftJwtAuth::getInstance()->jwt->parseJWT(CraftJwtAuth::getInstance()->jwt->getJWTFromRequest());
+        $cognitoEmail = CraftJwtAuth::getInstance()->cognito->getEmail($token);
+        $isAdmin = CraftJwtAuth::getInstance()->cognito->isAdmin($token);
+        if(!$isAdmin && $cognitoEmail != $email){
+            return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
+        }
+        
+        $cognitoError = CraftJwtAuth::getInstance()->cognito->deleteUser($email);
+        if(strlen($cognitoError) == 0){
+            $existingUser = Craft::$app->users->getUserByUsernameOrEmail($email);
+            if($existingUser)
+                Craft::$app->getElements()->deleteElement($existingUser);
+
+            return $this->_handleResponse(['status' => 0], 200);
+        }else{
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
+        }
+    }
+
+    public function actionDisable()
+    {
+        $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
+
+        $token = CraftJwtAuth::getInstance()->jwt->parseJWT(CraftJwtAuth::getInstance()->jwt->getJWTFromRequest());
+        $cognitoEmail = CraftJwtAuth::getInstance()->cognito->getEmail($token);
+        $isAdmin = CraftJwtAuth::getInstance()->cognito->isAdmin($token);
+        if(!$isAdmin && $cognitoEmail != $email){
+            return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
+        }
+        
+        $cognitoError = CraftJwtAuth::getInstance()->cognito->disableUser($email);
+        if(strlen($cognitoError) == 0){
+            return $this->_handleResponse(['status' => 0], 200);
+        }else{
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
         }
     }
 

@@ -6,6 +6,7 @@ use Craft;
 use craft\base\Component;
 use Aws\CognitoIdentityProvider\CognitoIdentityProviderClient;
 use Aws\CognitoIdentityProvider\Exception\CognitoIdentityProviderException;
+use Lcobucci\JWT\Token;
 use levinriegner\craftcognitoauth\CraftJwtAuth;
 
 class AWSCognitoService extends Component
@@ -125,6 +126,61 @@ class AWSCognitoService extends Component
         return '';
     }
 
+    public function updateUserAttributes($username, $firstname, $lastname)
+    {
+        try {
+            $userAttributes = [];
+            if($firstname !=null)
+                $userAttributes[] = [
+                    'Name' => 'given_name',
+                    'Value' => $firstname,
+                ];
+
+            if($lastname !=null)
+                $userAttributes[] = [
+                    'Name' => 'family_name',
+                    'Value' => $lastname,
+                ];
+            $this->client->adminUpdateUserAttributes([
+                'Username' => $username,
+                'UserPoolId' => $this->userpool_id,
+                'UserAttributes' => $userAttributes,
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        return '';
+    }
+
+    public function deleteUser($username)
+    {
+        try {
+            $this->client->adminDeleteUser([
+                'Username' => $username,
+                'UserPoolId' => $this->userpool_id
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        return '';
+    }
+
+    public function disableUser($username)
+    {
+        try {
+            $this->client->adminDisableUser([
+                'Username' => $username,
+                'UserPoolId' => $this->userpool_id
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        return '';
+    }
+
     public function sendPasswordResetMail(string $email) : string
     {
         try {
@@ -153,5 +209,22 @@ class AWSCognitoService extends Component
         }
 
         return '';
+    }
+
+    public function getEmail(?Token $token){
+        if(!$token) return '';
+        
+        return $token->getClaim('email','');
+    }
+
+    public function isAdmin(?Token $token){
+        if(!$token) return false;
+
+        $groups = $token->getClaim('cognito:groups',[]);
+        if($groups && in_array('admin', $groups)){
+            return true;
+        }
+
+        return false;
     }
 }
