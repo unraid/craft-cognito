@@ -109,10 +109,10 @@ class AuthController extends Controller
 
     public function actionRefresh()
     {
-        $username = Craft::$app->getRequest()->getRequiredBodyParam('username');
+        $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
         $token = Craft::$app->getRequest()->getRequiredBodyParam('token');
 
-        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->refreshAuthentication($username, $token);
+        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->refreshAuthentication($email, $token);
         if(array_key_exists('token', $cognitoResponse)){
             return $this->_handleResponse(['status' => 0, 
                     'token' => $cognitoResponse['token'],
