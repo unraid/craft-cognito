@@ -132,9 +132,7 @@ class JWT extends Component
     {
         if ($this->verifyJWT($token)) {
             // Get relevant settings
-            $autoCreateUser = CraftJwtAuth::getInstance()->getSettings()->autoCreateUser
-                && Craft::$app->getProjectConfig()->get('users.allowPublicRegistration')
-                ?: false;
+            $autoCreateUser = CraftJwtAuth::getInstance()->getSettings()->autoCreateUser;
 
             if ($autoCreateUser) {
                 // Create a new user and populate with claims
