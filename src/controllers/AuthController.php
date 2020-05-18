@@ -130,10 +130,8 @@ class AuthController extends Controller
         $firstname = Craft::$app->getRequest()->getBodyParam('firstname');
         $lastname = Craft::$app->getRequest()->getBodyParam('lastname');
 
-        $token = CraftJwtAuth::getInstance()->jwt->parseJWT(CraftJwtAuth::getInstance()->jwt->getJWTFromRequest());
-        $cognitoEmail = CraftJwtAuth::getInstance()->cognito->getEmail($token);
-        $isAdmin = CraftJwtAuth::getInstance()->cognito->isAdmin($token);
-        if(!$isAdmin && $cognitoEmail != $email){
+        $user = $this->getCurrentUser();
+        if(!$user->admin && $user->email != $email){
             return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
         }
 
@@ -158,10 +156,8 @@ class AuthController extends Controller
     {
         $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
 
-        $token = CraftJwtAuth::getInstance()->jwt->parseJWT(CraftJwtAuth::getInstance()->jwt->getJWTFromRequest());
-        $cognitoEmail = CraftJwtAuth::getInstance()->cognito->getEmail($token);
-        $isAdmin = CraftJwtAuth::getInstance()->cognito->isAdmin($token);
-        if(!$isAdmin && $cognitoEmail != $email){
+        $user = $this->getCurrentUser();
+        if(!$user->admin && $user->email != $email){
             return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
         }
         
@@ -181,10 +177,8 @@ class AuthController extends Controller
     {
         $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
 
-        $token = CraftJwtAuth::getInstance()->jwt->parseJWT(CraftJwtAuth::getInstance()->jwt->getJWTFromRequest());
-        $cognitoEmail = CraftJwtAuth::getInstance()->cognito->getEmail($token);
-        $isAdmin = CraftJwtAuth::getInstance()->cognito->isAdmin($token);
-        if(!$isAdmin && $cognitoEmail != $email){
+        $user = $this->getCurrentUser();
+        if(!$user->admin && $user->email != $email){
             return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
         }
         
@@ -221,5 +215,9 @@ class AuthController extends Controller
                 return null;
             }
         }
+    }
+
+    private function getCurrentUser() {
+        return Craft::$app->getUser()->getIdentity();
     }
 }
