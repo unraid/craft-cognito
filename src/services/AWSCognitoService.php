@@ -82,7 +82,7 @@ class AWSCognitoService extends Component
         ];
     }
 
-    public function signup(string $email, string $password, string $firstname, string $lastname) : string
+    public function signup(string $email, string $password, string $firstname, string $lastname) : array
     {
         try {
             $result = $this->client->signUp([
@@ -104,11 +104,12 @@ class AWSCognitoService extends Component
                     ]
                 ],
             ]);
-        } catch (\Exception $e) {
-            return $e->getMessage();
-        }
 
-        return '';
+            return ["UserSub" => $result->get('UserSub')];
+            
+        } catch (\Exception $e) {
+            return ["error" => $e->getMessage()];
+        }
     }
 
     public function confirmSignup(string $email, string $code) : string

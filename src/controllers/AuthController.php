@@ -42,11 +42,11 @@ class AuthController extends Controller
         $firstname  = Craft::$app->getRequest()->getRequiredBodyParam('firstname');
         $lastname   = Craft::$app->getRequest()->getRequiredBodyParam('lastname');
 
-        $cognitoError = CraftJwtAuth::getInstance()->cognito->signup($email, $password, $firstname, $lastname);
-        if(strlen($cognitoError) == 0){
-            return $this->_handleResponse(['status' => 0], 200);
+        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->signup($email, $password, $firstname, $lastname);
+        if(array_key_exists('UserSub', $cognitoResponse)){
+            return $this->_handleResponse(['status' => 0, 'userId' => $cognitoResponse['UserSub']], 200);
         }else{
-            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoResponse['error']], 500);
         }
     }
 
