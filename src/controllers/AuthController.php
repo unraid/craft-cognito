@@ -22,7 +22,7 @@ use levinriegner\craftcognitoauth\CraftJwtAuth;
  */
 class AuthController extends Controller
 {
-    protected $allowAnonymous = ['register','confirm','login',
+    protected $allowAnonymous = ['register','confirm','confirmrequest','login',
             'forgotpasswordrequest','forgotpassword','refresh'];
 
     public function beforeAction($action)
@@ -62,6 +62,19 @@ class AuthController extends Controller
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
         } 
     }
+
+    public function actionConfirmrequest()
+    {
+        $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
+
+        $cognitoError = CraftJwtAuth::getInstance()->cognito->resendConfirmationCode($email);
+        if(strlen($cognitoError) == 0){
+            return $this->_handleResponse(['status' => 0], 200);
+        }else{
+            return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
+        } 
+    }
+
 
     public function actionLogin()
     {

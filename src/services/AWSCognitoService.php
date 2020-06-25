@@ -112,6 +112,20 @@ class AWSCognitoService extends Component
         }
     }
 
+    public function resendConfirmationCode(string $email)
+    {
+        try {
+            $this->client->resendConfirmationCode([
+                'ClientId' => $this->client_id,
+                'Username' => $email
+            ]);
+        } catch (\Exception $e) {
+            return $e->getMessage();
+        }
+
+        return '';
+    }
+
     public function confirmSignup(string $email, string $code) : string
     {
         try {
@@ -127,7 +141,7 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function updateUserAttributes($username, $firstname, $lastname)
+    public function updateUserAttributes($username, $firstname, $lastname) : string
     {
         try {
             $userAttributes = [];
@@ -168,7 +182,7 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function disableUser($username)
+    public function disableUser($username) : string
     {
         try {
             $this->client->adminDisableUser([
