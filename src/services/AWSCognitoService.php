@@ -112,6 +112,62 @@ class AWSCognitoService extends Component
         }
     }
 
+    public function adminCreateUser(string $email, string $password, string $firstname, string $lastname) : array
+    {
+        try {
+            $result = $this->client->adminCreateUser([
+                'UserPoolId' => $this->userpool_id,
+                'Username' => $email,
+                'MessageAction' => 'SUPPRESS',
+                'TemporaryPassword' => $password,
+                'UserAttributes' => [
+                    [
+                        'Name' => 'given_name',
+                        'Value' => $firstname
+                    ],
+                    [
+                        'Name' => 'family_name',
+                        'Value' => $lastname
+                    ],
+                    [
+                        'Name' => 'email',
+                        'Value' => $email
+                    ]
+                ],
+            ]);
+
+            $userSub = $result->get('User')['Username'];
+
+            $result = $this->client->adminInitiateAuth([
+                'AuthFlow' => 'ADMIN_NO_SRP_AUTH',
+                'AuthParameters' => [
+                    "USERNAME" => $email,
+                    "PASSWORD" => $password
+                ],
+                'ClientId' => $this->client_id,
+                'UserPoolId' => $this->userpool_id
+            ]);            
+
+            $session = $result->get("Session");
+
+            $result = $this->client->adminRespondToAuthChallenge([
+                'ChallengeName' => 'NEW_PASSWORD_REQUIRED',
+                'ChallengeResponses'=> [
+                    "USERNAME"=>$email,
+                    "NEW_PASSWORD"=>$password
+                ],
+                'ClientId' => $this->client_id,
+                'Session' => $session,
+                'UserPoolId' => $this->userpool_id
+            ]);
+
+            return ["UserSub" => $userSub];
+            
+        } catch (\Exception $e) {
+            return ["error" => $e->getMessage()];
+        }
+    }
+
     public function resendConfirmationCode(string $email)
     {
         try {

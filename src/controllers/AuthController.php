@@ -60,7 +60,7 @@ class AuthController extends Controller
             return $this->_handleResponse(['status' => 0], 200);
         }else{
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
-        } 
+        }
     }
 
     public function actionConfirmrequest()
