@@ -28,6 +28,8 @@ use yii\base\Event;
  * @since     0.1.0
  *
  * @property  JWTService $jwt
+ * @property  Settings $settings
+ * @method    Settings getSettings()
  */
 class CraftJwtAuth extends Plugin
 {

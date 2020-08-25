@@ -87,7 +87,7 @@ class JWT extends Component
     */
     public function verifyJWT(Token $token)
     {
-        $jwksUrl = CraftJwtAuth::getInstance()->getSettings()->jwks;
+        $jwksUrl = CraftJwtAuth::getInstance()->getSettings()->getJwks();
         $jwks = json_decode(file_get_contents($jwksUrl), true);
         $jwk = null;
         foreach($jwks['keys'] as $struct) {
@@ -132,7 +132,7 @@ class JWT extends Component
     {
         if ($this->verifyJWT($token)) {
             // Get relevant settings
-            $autoCreateUser = CraftJwtAuth::getInstance()->getSettings()->autoCreateUser;
+            $autoCreateUser = CraftJwtAuth::getInstance()->getSettings()->getAutoCreateUser();
 
             if ($autoCreateUser) {
                 // Create a new user and populate with claims

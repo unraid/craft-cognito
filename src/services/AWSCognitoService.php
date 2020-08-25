@@ -19,9 +19,9 @@ class AWSCognitoService extends Component
 
     public function __construct()
     {
-        $this->region = CraftJwtAuth::getInstance()->getSettings()->region;
-        $this->client_id = CraftJwtAuth::getInstance()->getSettings()->clientId;
-        $this->userpool_id = CraftJwtAuth::getInstance()->getSettings()->userpoolId;
+        $this->region = CraftJwtAuth::getInstance()->getSettings()->getRegion();
+        $this->client_id = CraftJwtAuth::getInstance()->getSettings()->getClientId();
+        $this->userpool_id = CraftJwtAuth::getInstance()->getSettings()->getUserPoolId();
 
         $this->initialize();
     }

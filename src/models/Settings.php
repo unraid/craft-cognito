@@ -11,7 +11,9 @@
 
 namespace levinriegner\craftcognitoauth\models;
 
+use Craft;
 use craft\base\Model;
+use craft\behaviors\EnvAttributeParserBehavior;
 
 /**
  * @author    Mike Pierce
@@ -34,6 +36,15 @@ class Settings extends Model
     
     // Public Methods
     // =========================================================================
+    public function behaviors()
+    {
+        return [
+            'parser' => [
+                'class' => EnvAttributeParserBehavior::class,
+                'attributes' => ['autoCreateUser','region','clientId','userpoolId','jwks'],
+            ],
+        ];
+    }
 
     /**
      * @inheritdoc
@@ -47,5 +58,30 @@ class Settings extends Model
             ['userpoolId', 'string'],
             ['jwks', 'string'],
         ];
+    }
+
+    public function getAutoCreateUser(): bool
+    {
+        return boolval(Craft::parseEnv($this->autoCreateUser));
+    }
+
+    public function getRegion(): string
+    {
+        return Craft::parseEnv($this->region);
+    }
+
+    public function getClientId(): string
+    {
+        return Craft::parseEnv($this->clientId);
+    }
+
+    public function getUserPoolId(): string
+    {
+        return Craft::parseEnv($this->userpoolId);
+    }
+
+    public function getJwks(): string
+    {
+        return Craft::parseEnv($this->jwks);
     }
 }
