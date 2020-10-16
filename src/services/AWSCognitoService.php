@@ -132,6 +132,10 @@ class AWSCognitoService extends Component
                     [
                         'Name' => 'email',
                         'Value' => $email
+                    ],
+                    [
+                        'Name' => 'email_verified',
+                        'Value' => 'true'
                     ]
                 ],
             ]);
