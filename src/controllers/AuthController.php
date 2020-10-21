@@ -41,8 +41,9 @@ class AuthController extends Controller
         $password   = Craft::$app->getRequest()->getRequiredBodyParam('password');
         $firstname  = Craft::$app->getRequest()->getRequiredBodyParam('firstname');
         $lastname   = Craft::$app->getRequest()->getRequiredBodyParam('lastname');
+        $phone      = Craft::$app->getRequest()->getBodyParam('phone');
 
-        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->signup($email, $password, $firstname, $lastname);
+        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->signup($email, $password, $firstname, $lastname, $phone);
         if(array_key_exists('UserSub', $cognitoResponse)){
             return $this->_handleResponse(['status' => 0, 'userId' => $cognitoResponse['UserSub']], 200);
         }else{
@@ -139,16 +140,17 @@ class AuthController extends Controller
 
     public function actionUpdate()
     {
-        $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
-        $firstname = Craft::$app->getRequest()->getBodyParam('firstname');
-        $lastname = Craft::$app->getRequest()->getBodyParam('lastname');
+        $email      = Craft::$app->getRequest()->getRequiredBodyParam('email');
+        $firstname  = Craft::$app->getRequest()->getBodyParam('firstname');
+        $lastname   = Craft::$app->getRequest()->getBodyParam('lastname');
+        $phone      = Craft::$app->getRequest()->getBodyParam('phone');
 
         $user = $this->getCurrentUser();
         if(!$user->admin && $user->email != $email){
             return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
         }
 
-        $cognitoError = CraftJwtAuth::getInstance()->cognito->updateUserAttributes($email, $firstname, $lastname);
+        $cognitoError = CraftJwtAuth::getInstance()->cognito->updateUserAttributes($email, $firstname, $lastname, $phone);
         if(strlen($cognitoError) == 0){
             $existingUser = Craft::$app->users->getUserByUsernameOrEmail($email);
             if($existingUser){

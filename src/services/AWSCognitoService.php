@@ -82,27 +82,35 @@ class AWSCognitoService extends Component
         ];
     }
 
-    public function signup(string $email, string $password, string $firstname, string $lastname) : array
+    public function signup(string $email, string $password, string $firstname, string $lastname, string $phone = null) : array
     {
+        $userAttributes = [
+            [
+                'Name' => 'given_name',
+                'Value' => $firstname
+            ],
+            [
+                'Name' => 'family_name',
+                'Value' => $lastname
+            ],
+            [
+                'Name' => 'email',
+                'Value' => $email
+            ]
+        ];
+
+        if($phone)
+            $userAttributes[] = [
+                'Name' => 'phone_number',
+                'Value' => $phone
+            ];
+
         try {
             $result = $this->client->signUp([
                 'ClientId' => $this->client_id,
                 'Username' => $email,
                 'Password' => $password,
-                'UserAttributes' => [
-                    [
-                        'Name' => 'given_name',
-                        'Value' => $firstname
-                    ],
-                    [
-                        'Name' => 'family_name',
-                        'Value' => $lastname
-                    ],
-                    [
-                        'Name' => 'email',
-                        'Value' => $email
-                    ]
-                ],
+                'UserAttributes' => $userAttributes,
             ]);
 
             return ["UserSub" => $result->get('UserSub')];
@@ -112,8 +120,39 @@ class AWSCognitoService extends Component
         }
     }
 
-    public function adminCreateUser(string $email, string $password, string $firstname, string $lastname) : array
+    public function adminCreateUser(string $email, string $password, string $firstname, string $lastname, string $phone = null) : array
     {
+        $userAttributes = [
+            [
+                'Name' => 'given_name',
+                'Value' => $firstname
+            ],
+            [
+                'Name' => 'family_name',
+                'Value' => $lastname
+            ],
+            [
+                'Name' => 'email',
+                'Value' => $email
+            ],
+            [
+                'Name' => 'email_verified',
+                'Value' => 'true'
+            ]
+        ];
+
+        if($phone){
+            $userAttributes[] = [
+                'Name' => 'phone_number',
+                'Value' => $phone
+            ];
+
+            $userAttributes[] = [
+                'Name' => 'phone_verified',
+                'Value' => 'true'
+            ];
+        }
+
         try {
             $result = $this->client->adminCreateUser([
                 'UserPoolId' => $this->userpool_id,
@@ -201,7 +240,7 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function updateUserAttributes($username, $firstname, $lastname) : string
+    public function updateUserAttributes($username, $firstname, $lastname, $phone = null) : string
     {
         try {
             $userAttributes = [];
@@ -215,6 +254,12 @@ class AWSCognitoService extends Component
                 $userAttributes[] = [
                     'Name' => 'family_name',
                     'Value' => $lastname,
+                ];
+
+            if($phone !=null)
+                $userAttributes[] = [
+                    'Name' => 'phone_number',
+                    'Value' => $phone,
                 ];
             $this->client->adminUpdateUserAttributes([
                 'Username' => $username,

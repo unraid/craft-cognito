@@ -18,6 +18,7 @@ use Craft;
 use craft\base\Plugin;
 use craft\web\Application;
 use craft\web\twig\variables\CraftVariable;
+use levinriegner\craftcognitoauth\services\AWSCognitoService;
 use yii\base\Event;
 
 /**
@@ -27,6 +28,7 @@ use yii\base\Event;
  * @package   CraftJwtAuth
  * @since     0.1.0
  *
+ * @property  AWSCognitoService $cognito
  * @property  JWTService $jwt
  * @property  Settings $settings
  * @method    Settings getSettings()
