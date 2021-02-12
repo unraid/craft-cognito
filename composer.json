@@ -2,7 +2,7 @@
   "name": "levinriegner/craft-cognito-auth",
   "description": "Enable authentication to Craft through the use of AWS Cognito",
   "type": "craft-plugin",
-  "version": "0.4.1",
+  "version": "0.4.2",
   "keywords": [
     "craft",
     "cms",

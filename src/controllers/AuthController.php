@@ -14,6 +14,7 @@ namespace levinriegner\craftcognitoauth\controllers;
 use Craft;
 use craft\web\Controller;
 use levinriegner\craftcognitoauth\CraftJwtAuth;
+use levinriegner\craftcognitoauth\events\UserLoginEvent;
 
 /**
  * @author    Mike Pierce
@@ -22,6 +23,9 @@ use levinriegner\craftcognitoauth\CraftJwtAuth;
  */
 class AuthController extends Controller
 {
+    const EVENT_BEFORE_LOGIN_COGNITO = 'beforeLoginCognito';
+    const EVENT_AFTER_LOGIN_COGNITO = 'afterLoginCognito';
+
     protected $allowAnonymous = ['register','confirm','confirmrequest','login',
             'forgotpasswordrequest','forgotpassword','refresh'];
 
@@ -82,8 +86,18 @@ class AuthController extends Controller
         $email = Craft::$app->getRequest()->getRequiredBodyParam('email');
         $password = Craft::$app->getRequest()->getRequiredBodyParam('password');
 
+        $event = new UserLoginEvent(['email' => $email]);
+
+        if ($this->hasEventHandlers(self::EVENT_BEFORE_LOGIN_COGNITO)) {
+            $this->trigger(self::EVENT_BEFORE_LOGIN_COGNITO, $event);
+        }
+
         $cognitoResponse = CraftJwtAuth::getInstance()->cognito->authenticate($email, $password);
         if(array_key_exists('token', $cognitoResponse)){
+            if ($this->hasEventHandlers(self::EVENT_AFTER_LOGIN_COGNITO)) {
+                $this->trigger(self::EVENT_AFTER_LOGIN_COGNITO, $event);
+            }
+            
             return $this->_handleResponse(['status' => 0, 
                     'token' => $cognitoResponse['token'],
                     'accessToken' => $cognitoResponse['accessToken'],
