@@ -11,15 +11,13 @@
 
 namespace levinriegner\craftcognitoauth;
 
-use levinriegner\craftcognitoauth\services\JWT as JWTService;
 use levinriegner\craftcognitoauth\models\Settings;
+use levinriegner\craftcognitoauth\services\AWSCognitoService;
 
 use Craft;
 use craft\base\Plugin;
-use craft\web\Application;
-use craft\web\twig\variables\CraftVariable;
-use levinriegner\craftcognitoauth\services\AWSCognitoService;
-use yii\base\Event;
+use levinriegner\craftcognitoauth\helpers\ValidatorsHelper;
+use levinriegner\craftcognitoauth\services\AbstractValidator;
 
 /**
  * Class CraftJwtAuth
@@ -29,7 +27,6 @@ use yii\base\Event;
  * @since     0.1.0
  *
  * @property  AWSCognitoService $cognito
- * @property  JWTService $jwt
  * @property  Settings $settings
  * @method    Settings getSettings()
  */
@@ -61,8 +58,17 @@ class CraftJwtAuth extends Plugin
     {
         parent::init();
         self::$plugin = $this;
+        foreach(ValidatorsHelper::getAllTypes() as $name => $validator){
+            /**
+             * @var AbstractValidator
+             */
+            $this->set($name, $validator);
+        }
+
         if(Craft::$app instanceof craft\web\Application){
-            self::$plugin->jwt->parseJWTAndCreateUser(self::$plugin->jwt->getJWTFromRequest());
+            foreach(ValidatorsHelper::getAllTypes() as $name => $validator){
+                $this->get($name)->parseTokenAndCreateUser();
+            }
         }
 
         Craft::info(

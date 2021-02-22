@@ -59,3 +59,12 @@
     name: 'jwks',
     value: settings['jwks'] is defined? settings['jwks'] : ''})
 }}
+
+{{ forms.autosuggestField({
+    label: 'SAML Certificate',
+    instructions: 'Enter your SAML Certificate, used for verifying incoming SAML messages',
+    suggestEnvVars: true,
+    id: 'samlCert',
+    name: 'samlCert',
+    value: settings['samlCert'] is defined? settings['samlCert'] : ''})
+}}

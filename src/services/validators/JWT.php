@@ -9,7 +9,7 @@
  * @copyright Copyright (c) 2019 Mike Pierce
  */
 
-namespace levinriegner\craftcognitoauth\services;
+namespace levinriegner\craftcognitoauth\services\validators;
 
 use Craft;
 use craft\base\Component;
@@ -22,13 +22,14 @@ use Lcobucci\JWT\Signer\Rsa\Sha256;
 use Lcobucci\JWT\Token;
 
 use CoderCat\JWKToPEM\JWKConverter;
+use levinriegner\craftcognitoauth\services\AbstractValidator;
 
 /**
  * @author    Mike Pierce
  * @package   CraftJwtAuth
  * @since     0.1.0
  */
-class JWT extends Component
+class JWT extends AbstractValidator
 {
     // Public Methods
     // =========================================================================
@@ -36,7 +37,7 @@ class JWT extends Component
     /*
      * @return mixed
      */
-    public function getJWTFromRequest()
+    public function getTokenFromRequest()
     {
         // Look for an access token in the settings
         $accessToken = Craft::$app->request->headers->get('authorization') ?: Craft::$app->request->headers->get('x-access-token');
@@ -57,21 +58,7 @@ class JWT extends Component
     /*
     * @return mixed
     */
-    public function parseAndVerifyJWT($accessToken)
-    {
-        $token = $this->parseJWT($accessToken);
-
-        if ($token && $this->verifyJWT($token)) {
-            return $token;
-        }
-
-        return null;
-    }
-
-    /*
-    * @return mixed
-    */
-    public function parseJWT($accessToken)
+    public function parseToken($accessToken)
     {
         if (count(explode('.', $accessToken)) === 3) {
             $token = (new Parser())->parse((string) $accessToken);
@@ -85,7 +72,7 @@ class JWT extends Component
     /*
     * @return mixed
     */
-    public function verifyJWT(Token $token)
+    public function verifyToken($token)
     {
         $jwksUrl = CraftJwtAuth::getInstance()->getSettings()->getJwks();
         $jwks = json_decode(file_get_contents($jwksUrl), true);
@@ -109,7 +96,7 @@ class JWT extends Component
     /*
     * @return mixed
     */
-    public function getUserByJWT(Token $token)
+    public function getUserByToken($token)
     {
         if ($this->verifyJWT($token)) {
             // Derive the username from the subject in the token
@@ -128,7 +115,7 @@ class JWT extends Component
     /*
     * @return mixed
     */
-    public function createUserByJWT(Token $token)
+    public function createUserByToken($token)
     {
         if ($this->verifyJWT($token)) {
             // Get relevant settings
@@ -165,26 +152,5 @@ class JWT extends Component
         }
 
         return null;
-    }
-
-    public function parseJWTAndCreateUser($accesToken)
-    {
-        $token = $this->parseAndVerifyJWT($accesToken);
-        
-        // If the token passes verification...
-        if ($token) {
-            // Look for the user
-            $user = $this->getUserByJWT($token);
-
-            // If we don't have a user, but we're allowed to create one...
-            if (!$user) {
-                $user = $this->createUserByJWT($token);
-            }
-
-            // Attempt to login as the user we have found or created
-            if ($user && $user->id) {
-                Craft::$app->user->loginByUserId($user->id);
-            }
-        }
     }
 }

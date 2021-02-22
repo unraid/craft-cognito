@@ -11,14 +11,16 @@
 
 namespace levinriegner\craftcognitoauth\controllers;
 
+use Craft;
 use craft\web\Controller;
+use levinriegner\craftcognitoauth\CraftJwtAuth;
 
 /**
  * @author    Mike Pierce
  * @package   CraftJwtAuth
  * @since     0.1.0
  */
-class JWTController extends Controller
+class SamlController extends Controller
 {
 
     // Protected Properties
@@ -29,19 +31,24 @@ class JWTController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = [];
+    protected $allowAnonymous = ['auth'];
+
+    public function beforeAction($action)
+	{
+
+        $this->enableCsrfValidation = false;
+
+		return parent::beforeAction($action);
+	}
 
     // Public Methods
     // =========================================================================
 
-    /**
-     * @return mixed
-     */
-    // TODO: Add an action to generate a JWT for a specific or the logged in user.
-    // public function actionGenerate()
-    // {
-    //     $result = 'Welcome to the JWTController actionGenerate() method';
-
-    //     return $result;
-    // }
+    public function actionAuth()
+    {
+        $samlResponse = Craft::$app->request->getParam('SAMLResponse');
+        CraftJwtAuth::getInstance()->get('saml')->parseTokenAndCreateUser($samlResponse);
+        
+        return "";
+    }
 }

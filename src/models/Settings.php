@@ -33,6 +33,31 @@ class Settings extends Model
     public $clientId = '';
     public $userpoolId = '';
     public $jwks = '';
+    public $samlCert = '';
+
+    /**
+     * If empty, the nameId will be the SAML Subject nameId
+     * If not, the given attribute name will be used
+     */
+    public $samlNameId;
+
+    /**
+     * An array map with the Response attribute names as the array keys and the
+     * array values as the user element field. The array value can also be a callable.
+     *
+     * Simple mapping works by matching the Response name in the array with the user's
+     * property, and setting what is found in the Response's value to the user element.
+     * "IDP Attribute Name" => "Craft Property Name"
+     * 
+     * With more complex user fields, you can set the array value to a callable
+     * "IDP Attribute Name" => function($attribute) {...}
+     * */
+    public $samlAttributesMap = [
+        
+        'email' => 'email',
+        'firstname' => 'firstName',
+        'lastname' => 'lastName'
+    ];
     
     // Public Methods
     // =========================================================================
@@ -41,7 +66,7 @@ class Settings extends Model
         return [
             'parser' => [
                 'class' => EnvAttributeParserBehavior::class,
-                'attributes' => ['autoCreateUser','region','clientId','userpoolId','jwks'],
+                'attributes' => ['autoCreateUser','region','clientId','userpoolId','jwks','samlCert'],
             ],
         ];
     }
@@ -57,6 +82,7 @@ class Settings extends Model
             ['clientId', 'string'],
             ['userpoolId', 'string'],
             ['jwks', 'string'],
+            ['samlCert', 'string'],
         ];
     }
 
@@ -83,5 +109,10 @@ class Settings extends Model
     public function getJwks(): string
     {
         return Craft::parseEnv($this->jwks);
+    }
+
+    public function getSamlCert(): string
+    {
+        return Craft::parseEnv($this->samlCert);
     }
 }
