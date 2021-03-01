@@ -68,3 +68,12 @@
     name: 'samlCert',
     value: settings['samlCert'] is defined? settings['samlCert'] : ''})
 }}
+
+{{ forms.autosuggestField({
+    label: 'SAML Login URL',
+    instructions: 'Enter the SAML IdP login URL',
+    suggestEnvVars: true,
+    id: 'samlIdPLogin',
+    name: 'samlIdPLogin',
+    value: settings['samlIdPLogin'] is defined? settings['samlIdPLogin'] : ''})
+}}

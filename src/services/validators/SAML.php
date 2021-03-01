@@ -28,7 +28,7 @@ class SAML extends AbstractValidator
     public function __construct()
     {
         $this->samlCert = CraftJwtAuth::getInstance()->getSettings()->getSamlCert();
-        $this->attributesMap = CraftJwtAuth::getInstance()->getSettings()->samlAttributesMap;
+        $this->attributesMap = CraftJwtAuth::getInstance()->settingsService->get()->extra->samlAttributesMap;
     }
 
     /*

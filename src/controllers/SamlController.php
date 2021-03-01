@@ -51,4 +51,16 @@ class SamlController extends Controller
         
         return "";
     }
+
+    public function actionLogin()
+    {
+        if(!Craft::$app->getUser()->identity){
+            $samlLogin = CraftJwtAuth::$plugin->settingsService->get()->normal->samlIdPLogin;
+            Craft::$app->response->redirect($samlLogin);
+
+            Craft::$app->end();
+        }
+
+        return "";
+    }
 }

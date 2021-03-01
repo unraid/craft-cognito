@@ -45,7 +45,8 @@
     "hasCpSection": false,
     "changelogUrl": "https://raw.githubusercontent.com/levin-riegner/craft-cognito/master/CHANGELOG.md",
     "components": {
-      "cognito": "levinriegner\\craftcognitoauth\\services\\AWSCognitoService"
+      "cognito": "levinriegner\\craftcognitoauth\\services\\AWSCognitoService",
+      "settingsService": "levinriegner\\craftcognitoauth\\services\\SettingsService"
     },
     "class": "levinriegner\\craftcognitoauth\\CraftJwtAuth"
   }

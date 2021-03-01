@@ -13,6 +13,7 @@ namespace levinriegner\craftcognitoauth;
 
 use levinriegner\craftcognitoauth\models\Settings;
 use levinriegner\craftcognitoauth\services\AWSCognitoService;
+use levinriegner\craftcognitoauth\services\SettingsService;
 
 use Craft;
 use craft\base\Plugin;
@@ -27,6 +28,7 @@ use levinriegner\craftcognitoauth\services\AbstractValidator;
  * @since     0.1.0
  *
  * @property  AWSCognitoService $cognito
+ * @property  SettingsService $settingsService
  * @property  Settings $settings
  * @method    Settings getSettings()
  */
@@ -59,9 +61,6 @@ class CraftJwtAuth extends Plugin
         parent::init();
         self::$plugin = $this;
         foreach(ValidatorsHelper::getAllTypes() as $name => $validator){
-            /**
-             * @var AbstractValidator
-             */
             $this->set($name, $validator);
         }
 
