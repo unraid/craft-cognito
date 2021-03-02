@@ -101,4 +101,9 @@ class Settings extends Model
     {
         return Craft::parseEnv($this->samlCert);
     }
+
+    public function getSamlIdpLogin(): string
+    {
+        return Craft::parseEnv($this->samlIdPLogin);
+    }
 }

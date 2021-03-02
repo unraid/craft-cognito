@@ -31,7 +31,7 @@ class SamlController extends Controller
      *         The actions must be in 'kebab-case'
      * @access protected
      */
-    protected $allowAnonymous = ['auth'];
+    protected $allowAnonymous = ['auth', 'login'];
 
     public function beforeAction($action)
 	{
@@ -49,13 +49,15 @@ class SamlController extends Controller
         $samlResponse = Craft::$app->request->getParam('SAMLResponse');
         CraftJwtAuth::getInstance()->get('saml')->parseTokenAndCreateUser($samlResponse);
         
-        return "";
+        $userService = Craft::$app->getUser();
+
+        return Craft::$app->getResponse()->redirect($userService->getReturnUrl());
     }
 
     public function actionLogin()
     {
         if(!Craft::$app->getUser()->identity){
-            $samlLogin = CraftJwtAuth::$plugin->settingsService->get()->normal->samlIdPLogin;
+            $samlLogin = CraftJwtAuth::$plugin->settingsService->get()->normal->getSamlIdpLogin();
             Craft::$app->response->redirect($samlLogin);
 
             Craft::$app->end();
