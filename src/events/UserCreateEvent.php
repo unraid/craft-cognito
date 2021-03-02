@@ -7,21 +7,27 @@
 
 namespace levinriegner\craftcognitoauth\events;
 
+use craft\elements\User;
 use yii\base\Event;
 
 /**
- * Class UserLoginEvent
+ * Class UserCreateEvent
  *
  * @author    Levinriegner
- * @since     1.0
+ * @since     0.5
  */
-class UserLoginEvent extends Event
+class UserCreateEvent extends Event
 {
     // Properties
     // =========================================================================
 
     /**
+     * @var User
+     */
+    public $user;
+
+    /**
      * @var string
      */
-    public $email;
+    public $issuer;
 }

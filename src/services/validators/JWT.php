@@ -34,10 +34,7 @@ class JWT extends AbstractValidator
     // Public Methods
     // =========================================================================
 
-    /*
-     * @return mixed
-     */
-    public function getTokenFromRequest()
+    protected function getTokenFromRequest()
     {
         // Look for an access token in the settings
         $accessToken = Craft::$app->request->headers->get('authorization') ?: Craft::$app->request->headers->get('x-access-token');
@@ -55,10 +52,7 @@ class JWT extends AbstractValidator
         return null;
     }
 
-    /*
-    * @return mixed
-    */
-    public function parseToken($accessToken)
+    protected function parseToken($accessToken)
     {
         if (count(explode('.', $accessToken)) === 3) {
             $token = (new Parser())->parse((string) $accessToken);
@@ -69,10 +63,7 @@ class JWT extends AbstractValidator
         return null;
     }
 
-    /*
-    * @return mixed
-    */
-    public function verifyToken($token)
+    protected function verifyToken($token)
     {
         $jwksUrl = CraftJwtAuth::getInstance()->getSettings()->getJwks();
         $jwks = json_decode(file_get_contents($jwksUrl), true);
@@ -93,10 +84,12 @@ class JWT extends AbstractValidator
         return $verify;
     }
 
-    /*
-    * @return mixed
-    */
-    public function getUserByToken($token)
+    protected function getIssuerByToken($token){
+        //TODO Diferentiate different issuers inside cognito?
+        return 'cognito';
+    }
+
+    protected function getUserByToken($token)
     {
         if ($this->verifyJWT($token)) {
             // Derive the username from the subject in the token
@@ -112,10 +105,7 @@ class JWT extends AbstractValidator
         return null;
     }
 
-    /*
-    * @return mixed
-    */
-    public function createUserByToken($token)
+    protected function createUserByToken($token)
     {
         if ($this->verifyJWT($token)) {
             // Get relevant settings

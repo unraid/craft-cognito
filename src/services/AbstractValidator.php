@@ -4,14 +4,18 @@ namespace levinriegner\craftcognitoauth\services;
 
 use Craft;
 use craft\base\Component;
+use levinriegner\craftcognitoauth\events\UserCreateEvent;
 
 abstract class AbstractValidator extends Component{
     
+    const EVENT_AFTER_CREATE_USER = 'afterCreateUser';
+
     protected abstract function getTokenFromRequest();
 
     protected abstract function parseToken(string $accessToken);
     protected abstract function verifyToken($accessToken);
 
+    protected abstract function getIssuerByToken($token);
     protected abstract function getUserByToken($token);
     protected abstract function createUserByToken($token);
 
@@ -37,6 +41,12 @@ abstract class AbstractValidator extends Component{
 
             // Attempt to login as the user we have found or created
             if ($user && $user->id) {
+                $event = new UserCreateEvent(['user' => $user, 'issuer' => $this->getIssuerByToken($token)]);
+
+                if ($this->hasEventHandlers(self::EVENT_AFTER_CREATE_USER)) {
+                    $this->trigger(self::EVENT_AFTER_CREATE_USER, $event);
+                }
+
                 Craft::$app->user->loginByUserId($user->id);
             }
         }

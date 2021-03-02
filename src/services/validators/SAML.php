@@ -3,8 +3,6 @@
 namespace levinriegner\craftcognitoauth\services\validators;
 
 use Craft;
-use craft\base\Component;
-use craft\base\Field;
 use craft\elements\User;
 use craft\helpers\StringHelper;
 use levinriegner\craftcognitoauth\CraftJwtAuth;
@@ -27,7 +25,7 @@ class SAML extends AbstractValidator
 
     public function __construct()
     {
-        $this->samlCert = CraftJwtAuth::getInstance()->getSettings()->getSamlCert();
+        $this->samlCert = CraftJwtAuth::getInstance()->settingsService->get()->normal->getSamlCert();
         $this->attributesMap = CraftJwtAuth::getInstance()->settingsService->get()->extra->samlAttributesMap;
     }
 
@@ -80,11 +78,19 @@ class SAML extends AbstractValidator
         return $signatureReader->validate($key);
     }
 
-    /*
-    * @return mixed
-    */
+    protected function getIssuerByToken($token){
+        /**
+         * @var Response $token
+         */
+        Craft::warning($token->getIssuer()->getValue());
+        return $token->getIssuer()->getValue();
+    }
+    
     protected function getUserByToken($token)
     {
+        /**
+         * @var Response $token
+         */
         if ($this->verifyToken($token)) {
             $userName = $token->getFirstAssertion()->getSubject()->getNameID()->getValue();
 
@@ -97,9 +103,6 @@ class SAML extends AbstractValidator
         return null;
     }
 
-    /*
-    * @return mixed
-    */
     protected function createUserByToken($token)
     {
         // Get relevant settings
@@ -109,6 +112,9 @@ class SAML extends AbstractValidator
             // Create a new user and populate with claims
             $user = new User();
             foreach($this->attributesMap as $attributeKey => $attributeValue){
+                /**
+                 * @var Response $token
+                 */
                 foreach($token->getAllAssertions() as $assertion){
                     $this->assignProperty($user,
                     $attributeKey,
@@ -142,12 +148,9 @@ class SAML extends AbstractValidator
         $attributeValue,
         Assertion $assertion
     ) {
-
-
         if (is_callable($attributeValue)) {
             $attributeValue = call_user_func($attributeValue, $assertion);
         }else{
-            Craft::warning($attributeValue);
             //Lookup in the current assertion
             $attributeValue = $this->lookupSamlProperty($assertion, $attributeValue);
         }
@@ -173,15 +176,6 @@ class SAML extends AbstractValidator
     private function setSimpleProperty(User $user, $name, $value)
     {
         $field = $this->getFieldLayoutField($user, $name);
-
-        Craft::warning(
-            sprintf(
-                '%s as %s. Is custom field? %s',
-                $name,
-                $value,
-                $field instanceof Field ? $field->id : 'Nope'
-            )
-        );
 
         if (! is_null($field)) {
             //Custom field
