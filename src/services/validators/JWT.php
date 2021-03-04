@@ -34,6 +34,22 @@ class JWT extends AbstractValidator
     // Public Methods
     // =========================================================================
 
+    private $jwtEnabled;
+    private $jwksUrl;
+
+    public function __construct()
+    {
+        $this->jwtEnabled = CraftJwtAuth::getInstance()->settingsService->get()->normal->getJwtEnabled();
+        $this->jwksUrl = CraftJwtAuth::getInstance()->settingsService->get()->normal->getJwks();
+
+        parent::__construct();
+    }
+
+    public function isEnabled(){
+        return $this->jwtEnabled;
+    }
+
+
     protected function getTokenFromRequest()
     {
         // Look for an access token in the settings
@@ -65,8 +81,7 @@ class JWT extends AbstractValidator
 
     protected function verifyToken($token)
     {
-        $jwksUrl = CraftJwtAuth::getInstance()->getSettings()->getJwks();
-        $jwks = json_decode(file_get_contents($jwksUrl), true);
+        $jwks = json_decode(file_get_contents($this->jwksUrl), true);
         $jwk = null;
         foreach($jwks['keys'] as $struct) {
             if ($token->getHeader('kid') === $struct['kid']) {
@@ -91,54 +106,43 @@ class JWT extends AbstractValidator
 
     protected function getUserByToken($token)
     {
-        if ($this->verifyJWT($token)) {
-            // Derive the username from the subject in the token
-            $email = $token->getClaim('email', '');
-            $userName = $token->getClaim('sub', '');
+        // Derive the username from the subject in the token
+        $email = $token->getClaim('email', '');
+        $userName = $token->getClaim('sub', '');
 
-            // Look for the user with email
-            $user = Craft::$app->users->getUserByUsernameOrEmail($email ?: $userName);
+        // Look for the user with email
+        $user = Craft::$app->users->getUserByUsernameOrEmail($email ?: $userName);
 
-            return $user;
-        }
-
-        return null;
+        return $user;
     }
 
     protected function createUserByToken($token)
     {
-        if ($this->verifyJWT($token)) {
-            // Get relevant settings
-            $autoCreateUser = CraftJwtAuth::getInstance()->getSettings()->getAutoCreateUser();
+        // Email is a mandatory field
+        if ($token->hasClaim('email')) {
+            $email = $token->getClaim('email');
 
-            if ($autoCreateUser) {
-                // Create a new user and populate with claims
-                $user = new User();
+            // Create a new user and populate with claims
+            $user = new User();
 
-                // Email is a mandatory field
-                if ($token->hasClaim('email')) {
-                    $email = $token->getClaim('email');
+            // Set username and email
+            $user->email = $email;
+            $user->username = $token->getClaim('cognito:username', $email);
 
-                    // Set username and email
-                    $user->email = $email;
-                    $user->username = $token->getClaim('cognito:username', $email);
+            // These are optional, so pass empty string as the default
+            $user->firstName = $token->getClaim('given_name', '');
+            $user->lastName = $token->getClaim('family_name', '');
 
-                    // These are optional, so pass empty string as the default
-                    $user->firstName = $token->getClaim('given_name', '');
-                    $user->lastName = $token->getClaim('family_name', '');
+            // Attempt to save the user
+            $success = Craft::$app->getElements()->saveElement($user);
 
-                    // Attempt to save the user
-                    $success = Craft::$app->getElements()->saveElement($user);
+            // If user saved ok...
+            if ($success) {
+                // Assign the user to the default public group
+                Craft::$app->users->assignUserToDefaultGroup($user);
 
-                    // If user saved ok...
-                    if ($success) {
-                        // Assign the user to the default public group
-                        Craft::$app->users->assignUserToDefaultGroup($user);
-
-                        return $user;
-                    }
-                }
-            }
+                return $user;
+            } 
         }
 
         return null;

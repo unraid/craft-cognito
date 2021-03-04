@@ -17,8 +17,12 @@ use levinriegner\craftcognitoauth\services\SettingsService;
 
 use Craft;
 use craft\base\Plugin;
+use craft\events\RegisterUrlRulesEvent;
+use craft\web\Application;
+use craft\web\UrlManager;
 use levinriegner\craftcognitoauth\helpers\ValidatorsHelper;
 use levinriegner\craftcognitoauth\services\AbstractValidator;
+use yii\base\Event;
 
 /**
  * Class CraftJwtAuth
@@ -60,15 +64,37 @@ class CraftJwtAuth extends Plugin
     {
         parent::init();
         self::$plugin = $this;
+
         foreach(ValidatorsHelper::getAllTypes() as $name => $validator){
             $this->set($name, $validator);
         }
 
-        if(Craft::$app instanceof craft\web\Application){
-            foreach(ValidatorsHelper::getAllTypes() as $name => $validator){
-                $this->get($name)->parseTokenAndCreateUser();
+        Craft::$app->on(Application::EVENT_INIT, function() {
+            if(Craft::$app instanceof craft\web\Application){
+                foreach(ValidatorsHelper::getAllTypes() as $name => $validator){
+                    /**
+                     * @var AbstractValidator
+                     */
+                    $validator = $this->get($name);
+                    if($validator->isEnabled())
+                        $this->get($name)->parseTokenAndCreateUser();
+                }
             }
-        }
+        });
+
+        // Register our CP routes
+        Event::on(
+            UrlManager::class,
+            UrlManager::EVENT_REGISTER_CP_URL_RULES,
+            function (RegisterUrlRulesEvent $event) {
+                // Merge so that settings controller action comes first (important!)
+                $event->rules = array_merge([
+                        'settings/plugins/craft-cognito-auth' => 'craft-cognito-auth/settings/edit',
+                    ],
+                    $event->rules
+                );
+            }
+        );
 
         Craft::info(
             Craft::t(

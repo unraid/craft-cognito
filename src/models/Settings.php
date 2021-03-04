@@ -28,22 +28,21 @@ class Settings extends Model
     /**
      * @var string
      */
-    public $autoCreateUser = '';
+    public $autoCreateUser = false;
     public $region = '';
     public $clientId = '';
     public $userpoolId = '';
     public $jwks = '';
+    public $jwtEnabled = true;
+    
+    //Saml cert path to validate SAML tokens
     public $samlCert = '';
-
-    /**
-     * If empty, the nameId will be the SAML Subject nameId
-     * If not, the given attribute name will be used
-     */
-    public $samlNameId;  
 
     //Login URL of the SAML IdP
     public $samlIdPLogin;
     
+    public $samlEnabled = false;
+
     // Public Methods
     // =========================================================================
     public function behaviors()
@@ -51,7 +50,11 @@ class Settings extends Model
         return [
             'parser' => [
                 'class' => EnvAttributeParserBehavior::class,
-                'attributes' => ['autoCreateUser','region','clientId','userpoolId','jwks','samlCert', 'samlIdPLogin'],
+                'attributes' => [
+                    'autoCreateUser',
+                    'region','clientId','userpoolId','jwks',
+                    'samlCert', 'samlIdPLogin'
+                ],
             ],
         ];
     }
@@ -62,11 +65,13 @@ class Settings extends Model
     public function rules()
     {
         return [
+            ['jwtEnabled', 'boolean'],
             ['autoCreateUser', 'boolean'],
             ['region', 'string'],
             ['clientId', 'string'],
             ['userpoolId', 'string'],
             ['jwks', 'string'],
+            ['samlEnabled', 'boolean'],
             ['samlCert', 'string'],
             ['samlIdPLogin', 'string'],
         ];
@@ -105,5 +110,15 @@ class Settings extends Model
     public function getSamlIdpLogin(): string
     {
         return Craft::parseEnv($this->samlIdPLogin);
+    }
+
+    public function getSamlEnabled(): bool
+    {
+        return $this->samlEnabled;
+    }
+
+    public function getJwtEnabled(): bool
+    {
+        return $this->jwtEnabled;
     }
 }

@@ -1,0 +1,118 @@
+{% extends '_layouts/cp' %}
+
+{% import "_includes/forms" as forms %}
+
+{% set crumbs = [
+    { label: 'Settings'|t('app'), url: url('settings') },
+    { label: 'Plugins'|t('app'), url: url('settings/plugins') }
+] %}
+
+{% set title = 'Craft Cognito Auth' %}
+
+{% set tabs = {
+    general: {label: 'General configuration'|t('craft-cognito-auth'), url: '#general'},
+    cognito: {label: 'Cognito configuration'|t('craft-cognito-auth'), url: '#cognito'},
+    saml: {label: 'SAML configuration'|t('craft-cognito-auth'), url: '#saml'},
+} %}
+
+{% set fullPageForm = true %}
+
+{% block actionButton %}
+
+    <input type="submit" class="btn submit" value="{{ 'Save'|t('app') }}">
+
+{% endblock %}
+
+{% block content %}
+    <input type="hidden" name="action" value="craft-cognito-auth/settings/save">
+    <input type="hidden" name="pluginHandle" value="craft-cognito-auth">
+
+    <div id="general">
+        {{ forms.lightswitchField({
+            label: "Auto create user",
+            instructions: "If enabled, will automatically create a public user when provided with a verified token",
+            name: 'settings[autoCreateUser]',
+            on: settings.autoCreateUser,
+            required: true
+        }) }}
+    </div>
+
+    <div id="cognito" class="hidden">
+        {{ forms.lightswitchField({
+            label: "Enable JWT token handling",
+            instructions: "If enabled, will automatically parse incoming JWT tokens and try to login the user",
+            name: 'settings[jwtEnabled]',
+            on: settings.jwtEnabled,
+            required: true
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: 'AWS Cognito region',
+            instructions: 'Enter your AWS Cognito region',
+            suggestEnvVars: true,
+            id: 'region',
+            name: 'settings[region]',
+            value: settings['region']})
+        }}
+
+        {{ forms.autosuggestField({
+            label: 'AWS Cognito app client id',
+            instructions: 'Enter your AWS Cognito app client id (under App integration -> app client settings)',
+            suggestEnvVars: true,
+            id: 'clientId',
+            name: 'settings[clientId]',
+            value: settings['clientId']})
+        }}
+
+        {{ forms.autosuggestField({
+            label: 'AWS Cognito user pool id',
+            instructions: 'Enter your AWS Cognito user pool id (under General settings)',
+            suggestEnvVars: true,
+            id: 'userpoolId',
+            name: 'settings[userpoolId]',
+            value: settings['userpoolId']})
+        }}
+
+        {{ forms.autosuggestField({
+            label: 'JSON Web Key Set URL',
+            instructions: 'Enter your JSON Web Key Set URL (JWKS), used for verifying incoming Cognito JWTs',
+            suggestEnvVars: true,
+            id: 'jwks',
+            name: 'settings[jwks]',
+            value: settings['jwks']})
+        }}
+
+    </div>
+    <div id="saml" class="hidden">
+        {{ forms.lightswitchField({
+            label: "Enable SAML token handling",
+            instructions: "If enabled, will automatically parse incoming SAML tokens and try to login the user",
+            name: 'settings[samlEnabled]',
+            on: settings.samlEnabled,
+            required: true
+        }) }}
+
+        {{ forms.autosuggestField({
+            label: "SAML Certificate",
+            instructions: "Enter your SAML Certificate, used for verifying incoming SAML messages",
+            suggestEnvVars: true,
+            id: 'samlCert',
+            name: 'settings[samlCert]',
+            value: settings['samlCert']
+        }) }}
+        {{ forms.autosuggestField({
+            label: 'SAML Login URL',
+            instructions: 'Enter the SAML IdP login URL',
+            suggestEnvVars: true,
+            id: 'samlIdPLogin',
+            name: 'settings[samlIdPLogin]',
+            value: settings['samlIdPLogin']})
+        }}
+
+    </div>
+
+{% endblock %}
+
+{% js %} 
+
+{% endjs %}
