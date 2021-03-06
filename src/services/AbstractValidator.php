@@ -40,29 +40,30 @@ abstract class AbstractValidator extends Component{
 
         // If the token passes verification...
         if ($token) {
+
             // Look for the user
             $user = $this->getUserByToken($token);
 
+            $userCreated = false;
             // If we don't have a user, but we're allowed to create one...
             if (!$user && $this->autocreateUser) {
                 $user = $this->createUserByToken($token);
-
-                if ($user && $user->id) {
-                    /*
-                    * We need to login before triggering the event
-                    * because the twig globals are updated before the user is logged in
-                    * This causes the currentUser twig variable to be null even though the user is logged
-                    */
-                    Craft::$app->user->loginByUserId($user->id);
-
-                    if($this->hasEventHandlers(self::EVENT_AFTER_CREATE_USER)){
-                        $event = new UserCreateEvent(['user' => $user, 'issuer' => $this->getIssuerByToken($token)]);    
-                        $this->trigger(self::EVENT_AFTER_CREATE_USER, $event);
-                    }
-
-                }
+                $userCreated = $user && $user->id;
             }
 
+            if ($user && $user->id) {
+                /*
+                * We need to login before triggering the event
+                * because the twig globals are updated before the user is logged in
+                * This causes the currentUser twig variable to be null even though the user is logged
+                */
+                Craft::$app->user->loginByUserId($user->id);
+
+                if($userCreated && $this->hasEventHandlers(self::EVENT_AFTER_CREATE_USER)){
+                    $event = new UserCreateEvent(['user' => $user, 'issuer' => $this->getIssuerByToken($token)]);    
+                    $this->trigger(self::EVENT_AFTER_CREATE_USER, $event);
+                }
+            }
         }
     }
 

@@ -222,7 +222,7 @@ class AuthController extends Controller
     private function _handleResponse($response, $responseCode, $startSession = false){
         $request = Craft::$app->getRequest();
         if($responseCode == 200 && $startSession)
-            CraftJwtAuth::getInstance()->jwt->parseJWTAndCreateUser($response['token']);
+            CraftJwtAuth::getInstance()->jwt->parseTokenAndCreateUser($response['token']);
 
         if ($request->getAcceptsJson()) {
             Craft::$app->getResponse()->setStatusCode($responseCode);
