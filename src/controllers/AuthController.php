@@ -167,12 +167,14 @@ class AuthController extends Controller
 
         $cognitoError = CraftJwtAuth::getInstance()->cognito->updateUserAttributes($username, $firstname, $lastname, $phone, $email);
         if(strlen($cognitoError) == 0){
-            $existingUser = Craft::$app->users->getUserByUsernameOrEmail($email);
+            $existingUser = Craft::$app->users->getUserByUsernameOrEmail($username);
             if($existingUser){
                 if($firstname)
                     $existingUser->firstName = $firstname;
                 if($lastname)
                     $existingUser->lastName = $lastname;
+                if($email)
+                    $existingUser->email = $email;
 
                 Craft::$app->getElements()->saveElement($existingUser);
             }
