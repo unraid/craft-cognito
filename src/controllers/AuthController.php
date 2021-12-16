@@ -46,8 +46,9 @@ class AuthController extends Controller
         $firstname  = Craft::$app->getRequest()->getRequiredBodyParam('firstname');
         $lastname   = Craft::$app->getRequest()->getRequiredBodyParam('lastname');
         $phone      = Craft::$app->getRequest()->getBodyParam('phone');
+        $username   = Craft::$app->getRequest()->getBodyParam('username');
 
-        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->signup($email, $password, $firstname, $lastname, $phone);
+        $cognitoResponse = CraftJwtAuth::getInstance()->cognito->signup($email, $password, $firstname, $lastname, $phone, $username);
         if(array_key_exists('UserSub', $cognitoResponse)){
             return $this->_handleResponse(['status' => 0, 'userId' => $cognitoResponse['UserSub']], 200);
         }else{
@@ -79,7 +80,6 @@ class AuthController extends Controller
             return $this->_handleResponse(['status' => 1, 'error' => $cognitoError], 500);
         } 
     }
-
 
     public function actionLogin()
     {
@@ -154,17 +154,18 @@ class AuthController extends Controller
 
     public function actionUpdate()
     {
-        $email      = Craft::$app->getRequest()->getRequiredBodyParam('email');
+        $username   = Craft::$app->getRequest()->getRequiredBodyParam('username');
+        $email      = Craft::$app->getRequest()->getBodyParam('email');
         $firstname  = Craft::$app->getRequest()->getBodyParam('firstname');
         $lastname   = Craft::$app->getRequest()->getBodyParam('lastname');
         $phone      = Craft::$app->getRequest()->getBodyParam('phone');
 
         $user = $this->getCurrentUser();
-        if(!$user->admin && $user->email != $email){
+        if(!$user->admin && $user->username != $username){
             return $this->_handleResponse(['status' => 1, 'error' => 'No admin rights'], 401);
         }
 
-        $cognitoError = CraftJwtAuth::getInstance()->cognito->updateUserAttributes($email, $firstname, $lastname, $phone);
+        $cognitoError = CraftJwtAuth::getInstance()->cognito->updateUserAttributes($username, $firstname, $lastname, $phone, $email);
         if(strlen($cognitoError) == 0){
             $existingUser = Craft::$app->users->getUserByUsernameOrEmail($email);
             if($existingUser){

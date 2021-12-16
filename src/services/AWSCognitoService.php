@@ -82,7 +82,7 @@ class AWSCognitoService extends Component
         ];
     }
 
-    public function signup(string $email, string $password, string $firstname, string $lastname, string $phone = null) : array
+    public function signup(string $email, string $password, string $firstname, string $lastname, string $phone = null, string $username = null) : array
     {
         $userAttributes = [
             [
@@ -108,7 +108,7 @@ class AWSCognitoService extends Component
         try {
             $result = $this->client->signUp([
                 'ClientId' => $this->client_id,
-                'Username' => $email,
+                'Username' => $username ? $username : $email,
                 'Password' => $password,
                 'UserAttributes' => $userAttributes,
             ]);
@@ -120,7 +120,7 @@ class AWSCognitoService extends Component
         }
     }
 
-    public function adminCreateUser(string $email, string $password, string $firstname, string $lastname, string $phone = null) : array
+    public function adminCreateUser(string $email, string $password, string $firstname, string $lastname, string $phone = null, $username = null) : array
     {
         $userAttributes = [
             [
@@ -156,27 +156,10 @@ class AWSCognitoService extends Component
         try {
             $result = $this->client->adminCreateUser([
                 'UserPoolId' => $this->userpool_id,
-                'Username' => $email,
+                'Username' => $username ? $username : $email,
                 'MessageAction' => 'SUPPRESS',
                 'TemporaryPassword' => $password,
-                'UserAttributes' => [
-                    [
-                        'Name' => 'given_name',
-                        'Value' => $firstname
-                    ],
-                    [
-                        'Name' => 'family_name',
-                        'Value' => $lastname
-                    ],
-                    [
-                        'Name' => 'email',
-                        'Value' => $email
-                    ],
-                    [
-                        'Name' => 'email_verified',
-                        'Value' => 'true'
-                    ]
-                ],
+                'UserAttributes' => $userAttributes
             ]);
 
             $userSub = $result->get('User')['Username'];
@@ -240,7 +223,7 @@ class AWSCognitoService extends Component
         return '';
     }
 
-    public function updateUserAttributes($username, $firstname, $lastname, $phone = null) : string
+    public function updateUserAttributes($username, $firstname, $lastname, $phone = null, $email = null) : string
     {
         try {
             $userAttributes = [];
@@ -260,6 +243,12 @@ class AWSCognitoService extends Component
                 $userAttributes[] = [
                     'Name' => 'phone_number',
                     'Value' => $phone,
+                ];
+
+            if($email !=null)
+                $userAttributes[] = [
+                    'Name' => 'email',
+                    'Value' => $email,
                 ];
             $this->client->adminUpdateUserAttributes([
                 'Username' => $username,
