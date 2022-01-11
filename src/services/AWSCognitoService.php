@@ -82,23 +82,27 @@ class AWSCognitoService extends Component
         ];
     }
 
-    public function signup(string $email, string $password, string $firstname, string $lastname, string $phone = null, string $username = null) : array
+    public function signup(string $email, string $password, string $firstname = null, string $lastname = null, string $phone = null, string $username = null) : array
     {
         $userAttributes = [
-            [
-                'Name' => 'given_name',
-                'Value' => $firstname
-            ],
-            [
-                'Name' => 'family_name',
-                'Value' => $lastname
-            ],
             [
                 'Name' => 'email',
                 'Value' => $email
             ]
         ];
 
+        if($firstname)
+            $userAttributes[] = [
+                'Name' => 'given_name',
+                'Value' => $firstname
+            ];
+
+        if($lastname)
+            $userAttributes[] = [
+                'Name' => 'family_name',
+                'Value' => $lastname
+            ];
+            
         if($phone)
             $userAttributes[] = [
                 'Name' => 'phone_number',

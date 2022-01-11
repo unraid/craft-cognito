@@ -43,8 +43,8 @@ class AuthController extends Controller
         
         $email      = Craft::$app->getRequest()->getRequiredBodyParam('email');
         $password   = Craft::$app->getRequest()->getRequiredBodyParam('password');
-        $firstname  = Craft::$app->getRequest()->getRequiredBodyParam('firstname');
-        $lastname   = Craft::$app->getRequest()->getRequiredBodyParam('lastname');
+        $firstname  = Craft::$app->getRequest()->getBodyParam('firstname');
+        $lastname   = Craft::$app->getRequest()->getBodyParam('lastname');
         $phone      = Craft::$app->getRequest()->getBodyParam('phone');
         $username   = Craft::$app->getRequest()->getBodyParam('username');
 
