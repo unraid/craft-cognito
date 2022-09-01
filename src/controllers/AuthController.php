@@ -26,8 +26,15 @@ class AuthController extends Controller
     const EVENT_BEFORE_LOGIN_COGNITO = 'beforeLoginCognito';
     const EVENT_AFTER_LOGIN_COGNITO = 'afterLoginCognito';
 
-    protected $allowAnonymous = ['register','confirm','confirmrequest','login',
-            'forgotpasswordrequest','forgotpassword','refresh'];
+    protected $allowAnonymous = [
+        'register',
+        'confirm',
+        'confirmrequest',
+        'login',
+        'forgotpasswordrequest',
+        'forgotpassword',
+        'refresh',
+    ];
 
     public function beforeAction($action)
 	{
@@ -40,7 +47,7 @@ class AuthController extends Controller
     public function actionRegister()
     {
         $this->requirePostRequest();
-        
+
         $email      = Craft::$app->getRequest()->getRequiredBodyParam('email');
         $password   = Craft::$app->getRequest()->getRequiredBodyParam('password');
         $firstname  = Craft::$app->getRequest()->getBodyParam('firstname');
@@ -97,7 +104,7 @@ class AuthController extends Controller
             if ($this->hasEventHandlers(self::EVENT_AFTER_LOGIN_COGNITO)) {
                 $this->trigger(self::EVENT_AFTER_LOGIN_COGNITO, $event);
             }
-            
+
             return $this->_handleResponse(['status' => 0, 
                     'token' => $cognitoResponse['token'],
                     'accessToken' => $cognitoResponse['accessToken'],

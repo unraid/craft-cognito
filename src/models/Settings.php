@@ -31,6 +31,7 @@ class Settings extends Model
     public $autoCreateUser = false;
     public $region = '';
     public $clientId = '';
+    public $clientSecret = '';
     public $userpoolId = '';
     public $jwks = '';
     public $jwtEnabled = true;
@@ -52,8 +53,13 @@ class Settings extends Model
                 'class' => EnvAttributeParserBehavior::class,
                 'attributes' => [
                     'autoCreateUser',
-                    'region','clientId','userpoolId','jwks',
-                    'samlCert', 'samlIdPLogin'
+                    'region',
+                    'clientId',
+                    'clientSecret',
+                    'userpoolId',
+                    'jwks',
+                    'samlCert',
+                    'samlIdPLogin'
                 ],
             ],
         ];
@@ -69,6 +75,7 @@ class Settings extends Model
             ['autoCreateUser', 'boolean'],
             ['region', 'string'],
             ['clientId', 'string'],
+            ['clientSecret', 'string'],
             ['userpoolId', 'string'],
             ['jwks', 'string'],
             ['samlEnabled', 'boolean'],
@@ -90,6 +97,11 @@ class Settings extends Model
     public function getClientId(): string
     {
         return Craft::parseEnv($this->clientId);
+    }
+
+    public function getClientSecret(): string
+    {
+        return Craft::parseEnv($this->clientSecret);
     }
 
     public function getUserPoolId(): string

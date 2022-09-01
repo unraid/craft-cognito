@@ -13,6 +13,7 @@ class AWSCognitoService extends Component
 {
     private $region;
     private $client_id;
+    private $client_secret;
     private $userpool_id;
 
     private $client = null;
@@ -21,6 +22,7 @@ class AWSCognitoService extends Component
     {
         $this->region = CraftJwtAuth::getInstance()->getSettings()->getRegion();
         $this->client_id = CraftJwtAuth::getInstance()->getSettings()->getClientId();
+        $this->client_secret = CraftJwtAuth::getInstance()->getSettings()->getClientSecret();
         $this->userpool_id = CraftJwtAuth::getInstance()->getSettings()->getUserPoolId();
 
         $this->initialize();
@@ -32,7 +34,12 @@ class AWSCognitoService extends Component
           'version' => '2016-04-18',
           'region' => $this->region
         ]);
-        
+    }
+
+    public function cognitoSecretHash(string $username) : string
+    {
+        $hash = hash_hmac('sha256', $username. $this->client_id, $this->client_secret, true);
+        return base64_encode($hash);
     }
 
     public function refreshAuthentication($username, $refreshToken)
@@ -42,7 +49,8 @@ class AWSCognitoService extends Component
                 'AuthFlow' => 'REFRESH_TOKEN_AUTH',
                 'AuthParameters' => [
                     'USERNAME' => $username,
-                    'REFRESH_TOKEN' => $refreshToken
+                    'REFRESH_TOKEN' => $refreshToken,
+                    'SECRET_HASH' => $this->cognitoSecretHash($username),
                 ],
                 'ClientId' => $this->client_id,
                 'UserPoolId' => $this->userpool_id,
@@ -68,11 +76,16 @@ class AWSCognitoService extends Component
                 'AuthParameters' => [
                     'USERNAME' => $username,
                     'PASSWORD' => $password,
+                    'SECRET_HASH' => $this->cognitoSecretHash($username),
                 ],
             ]);
         } catch (\Exception $e) {
             return ["error" => $e->getMessage()];
         }
+
+        /**
+         * @todo determine if we need to verify MFA code
+         */
 
         return [
             "token" => $result->get('AuthenticationResult')['IdToken'],
@@ -102,23 +115,30 @@ class AWSCognitoService extends Component
                 'Name' => 'family_name',
                 'Value' => $lastname
             ];
-            
+
         if($phone)
             $userAttributes[] = [
                 'Name' => 'phone_number',
                 'Value' => $phone
             ];
 
+        if($username)
+            $userAttributes[] = [
+                'Name' => 'preferred_username',
+                'Value' => $username
+            ];
+
         try {
             $result = $this->client->signUp([
                 'ClientId' => $this->client_id,
-                'Username' => $username ? $username : $email,
+                'SecretHash' => $this->cognitoSecretHash($email), // differs from using username
+                'Username' => $email,
                 'Password' => $password,
                 'UserAttributes' => $userAttributes,
             ]);
 
             return ["UserSub" => $result->get('UserSub')];
-            
+
         } catch (\Exception $e) {
             return ["error" => $e->getMessage()];
         }
@@ -172,11 +192,12 @@ class AWSCognitoService extends Component
                 'AuthFlow' => 'ADMIN_NO_SRP_AUTH',
                 'AuthParameters' => [
                     "USERNAME" => $email,
-                    "PASSWORD" => $password
+                    "PASSWORD" => $password,
+                    'SECRET_HASH' => $this->cognitoSecretHash($username),
                 ],
                 'ClientId' => $this->client_id,
                 'UserPoolId' => $this->userpool_id
-            ]);            
+            ]);
 
             $session = $result->get("Session");
 
@@ -187,12 +208,13 @@ class AWSCognitoService extends Component
                     "NEW_PASSWORD"=>$password
                 ],
                 'ClientId' => $this->client_id,
+                'SecretHash' => $this->cognitoSecretHash($email), // differs from using username
                 'Session' => $session,
                 'UserPoolId' => $this->userpool_id
             ]);
 
             return ["UserSub" => $userSub];
-            
+
         } catch (\Exception $e) {
             return ["error" => $e->getMessage()];
         }
@@ -203,6 +225,7 @@ class AWSCognitoService extends Component
         try {
             $this->client->resendConfirmationCode([
                 'ClientId' => $this->client_id,
+                'SecretHash' => $this->cognitoSecretHash($email), // differs from using username
                 'Username' => $email
             ]);
         } catch (\Exception $e) {
@@ -217,6 +240,7 @@ class AWSCognitoService extends Component
         try {
             $result = $this->client->confirmSignUp([
                 'ClientId' => $this->client_id,
+                'SecretHash' => $this->cognitoSecretHash($email), // differs from using username
                 'Username' => $email,
                 'ConfirmationCode' => $code,
             ]);
@@ -299,6 +323,7 @@ class AWSCognitoService extends Component
         try {
             $this->client->forgotPassword([
                 'ClientId' => $this->client_id,
+                'SecretHash' => $this->cognitoSecretHash($email), // differs from using username
                 'Username' => $email
             ]);
         } catch (\Exception $e) {
@@ -313,6 +338,7 @@ class AWSCognitoService extends Component
         try {
             $this->client->confirmForgotPassword([
                 'ClientId' => $this->client_id,
+                'SecretHash' => $this->cognitoSecretHash($email), // differs from using username
                 'ConfirmationCode' => $code,
                 'Password' => $password,
                 'Username' => $email
@@ -326,7 +352,7 @@ class AWSCognitoService extends Component
 
     public function getEmail(?Token $token){
         if(!$token) return '';
-        
+
         return $token->getClaim('email','');
     }
 

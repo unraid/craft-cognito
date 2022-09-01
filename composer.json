@@ -1,5 +1,5 @@
 {
-  "name": "levinriegner/craft-cognito-auth",
+  "name": "levinriegner/craft-cognito",
   "description": "Enable authentication to Craft using AWS Cognito",
   "type": "craft-plugin",
   "version": "0.7.2",
@@ -27,8 +27,8 @@
   ],
   "require": {
     "craftcms/cms": "^3.7.33",
-    "lcobucci/jwt": "3.3.3",
-    "aws/aws-sdk-php": "^3.112",
+    "lcobucci/jwt": "^4.0",
+    "aws/aws-sdk-php": "^3.234.7",
     "codercat/jwk-to-pem": "^0.0.3",
     "simplesamlphp/saml2": "^4.0",
     "lightsaml/lightsaml": "^2.0"
@@ -52,5 +52,11 @@
       "settingsService": "levinriegner\\craftcognitoauth\\services\\SettingsService"
     },
     "class": "levinriegner\\craftcognitoauth\\CraftJwtAuth"
+  },
+  "config": {
+    "allow-plugins": {
+      "yiisoft/yii2-composer": true,
+      "craftcms/plugin-installer": true
+    }
   }
 }
